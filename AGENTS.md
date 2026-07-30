@@ -22,6 +22,14 @@ Comprehensive guide for game development with AI assistants. See `docs/research/
 
 Godot 4.7 / GDScript specifics, roguelite run structure, and project-technical details. See `docs/research/godot-47-supplement.md`.
 
+### Design & release supplement
+
+Game-design and production companion: extraction risk/reward math, economy faucet/sink design, StS-style graph generation invariants, game feel, 2D lighting in Compatibility renderer, localization, playtesting, and Steam/itch.io release path. See `docs/research/design-and-release-supplement.md`.
+
+### Production & AI-workflow supplement
+
+Production pipeline (prototype vs vertical slice, phase mapping), solo tool stack with licenses, CI/CD reference (gdtoolkit + GUT + Godot CI + Butler), production-grade SaveManager reference, anti-patterns, and the project's AI prompt library. See `docs/research/production-and-ai-workflow-supplement.md`.
+
 ### Engineering workflow skills (mattpocock/skills)
 
 These skills are loaded from `.agents/skills/` and follow the Matt Pocock engineering workflow.
