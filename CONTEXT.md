@@ -59,6 +59,7 @@ See `README.md` for full design doc.
 - See `docs/adr/` for architecture decision records.
 - See `docs/research/game-dev-handbook.md` for the comprehensive development guide.
 - See `docs/research/godot-47-supplement.md` for Godot 4.7 / GDScript specifics and genre-technical details.
+- See `docs/research/design-and-release-supplement.md` for game design and production: push-your-luck evacuation balance, 4-resource economy, route-graph generation invariants, game feel, 2D lighting, playtesting/telemetry, itch.io/Steam release path.
 - No external dependencies for MVP core loop.
 - Save format: JSON via `ConfigFile` for MVP, atomic write, 3 slots, backup.
 - Hub layout: fixed socket positions around lighthouse (no free drag-and-drop in MVP).
