@@ -58,6 +58,7 @@ See `README.md` for full design doc.
 
 - See `docs/adr/` for architecture decision records.
 - See `docs/research/game-dev-handbook.md` for the comprehensive development guide.
+- See `docs/research/godot-47-supplement.md` for Godot 4.7 / GDScript specifics and genre-technical details.
 - No external dependencies for MVP core loop.
 - Save format: JSON via `ConfigFile` for MVP, atomic write, 3 slots, backup.
 - Hub layout: fixed socket positions around lighthouse (no free drag-and-drop in MVP).

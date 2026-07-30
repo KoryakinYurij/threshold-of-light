@@ -18,6 +18,10 @@ Single-context layout. `CONTEXT.md` + `docs/adr/` for ADRs. See `docs/agents/dom
 
 Comprehensive guide for game development with AI assistants. See `docs/research/game-dev-handbook.md`.
 
+### Godot 4.7 + genre supplement
+
+Godot 4.7 / GDScript specifics, roguelite run structure, and project-technical details. See `docs/research/godot-47-supplement.md`.
+
 ### Engineering workflow skills (mattpocock/skills)
 
 These skills are loaded from `.agents/skills/` and follow the Matt Pocock engineering workflow.
