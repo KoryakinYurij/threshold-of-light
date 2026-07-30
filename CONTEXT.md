@@ -57,6 +57,7 @@ See `README.md` for full design doc.
 ## Key decisions
 
 - See `docs/adr/` for architecture decision records.
+- See `docs/research/game-dev-handbook.md` for the comprehensive development guide.
 - No external dependencies for MVP core loop.
 - Save format: JSON via `ConfigFile` for MVP, atomic write, 3 slots, backup.
 - Hub layout: fixed socket positions around lighthouse (no free drag-and-drop in MVP).

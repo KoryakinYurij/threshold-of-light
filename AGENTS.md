@@ -14,6 +14,10 @@ Five canonical roles: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-fo
 
 Single-context layout. `CONTEXT.md` + `docs/adr/` for ADRs. See `docs/agents/domain.md`.
 
+### Development handbook
+
+Comprehensive guide for game development with AI assistants. See `docs/research/game-dev-handbook.md`.
+
 ### Engineering workflow skills (mattpocock/skills)
 
 These skills are loaded from `.agents/skills/` and follow the Matt Pocock engineering workflow.
