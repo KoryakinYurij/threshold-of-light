@@ -47,7 +47,6 @@ These skills are loaded from `.agents/skills/` and follow the Matt Pocock engine
 #### Support skills
 
 - `/writing-great-skills` — reference for writing and editing skills.
-- `/wrap-up` — end-of-session cleanup, optional debrief, self-improve, commit, push.
 
 ### Usage notes
 
