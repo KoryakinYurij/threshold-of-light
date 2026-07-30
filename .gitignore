@@ -17,3 +17,6 @@ exports/
 
 # Imported assets (cache)
 .import/
+
+# Kilo local config (canonical skills live in .agents/skills/)
+.kilo/
