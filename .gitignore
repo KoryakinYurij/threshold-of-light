@@ -1,0 +1,19 @@
+# Godot 4.x
+.godot/
+*.pck
+*.zip
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Build
+build/
+exports/
+
+# Imported assets (cache)
+.import/
