@@ -37,11 +37,11 @@ Production pipeline (prototype vs vertical slice, phase mapping), solo tool stac
 - Skill reference: `.agents/skills/godot-mcp-setup/SKILL.md`
 
 ### Godot 4 Agentic Skills (thedivergentai/gd-agentic-skills)
-Full collection of **97 audited Godot 4.5+ skills** located in `.agents/skills/`. Includes:
-- **Core GDScript & Architecture:** `godot-gdscript-mastery`, `godot-autoload-architecture`, `godot-signal-architecture`, `godot-resource-data-patterns`, `godot-save-load-systems`, `godot-scene-management`.
+Curated collection of **74 audited Godot 4.5+ skills** located in `.agents/skills/`:
+- **Core GDScript & Architecture:** `godot-gdscript-mastery`, `godot-autoload-architecture`, `godot-signal-architecture`, `godot-resource-data-patterns`, `godot-save-load-systems`, `godot-scene-management`, `godot-composition`.
 - **2D Gameplay & Physics:** `godot-characterbody-2d`, `godot-2d-physics`, `godot-combat-system`, `godot-camera-systems`, `godot-input-handling`, `godot-tilemap-mastery`, `godot-2d-animation`.
-- **Genre & Systems:** `godot-genre-roguelike`, `godot-procedural-generation`, `godot-inventory-system`, `godot-dialogue-system`, `godot-quest-system`, `godot-state-machine-advanced`, `godot-audio-systems`, `godot-shaders-basics`.
-- **UI & Layouts:** `godot-ui-containers`, `godot-ui-theming`, `godot-ui-rich-text`.
+- **Genre & Systems:** `godot-genre-roguelike`, `godot-genre-action-rpg`, `godot-procedural-generation`, `godot-inventory-system`, `godot-dialogue-system`, `godot-state-machine-advanced`, `godot-audio-systems`.
+- **2.5D Reserve (Graphics/Space):** `godot-3d-lighting`, `godot-3d-materials`, `godot-3d-world-building`, `godot-adapt-2d-to-3d`, `godot-adapt-3d-to-2d`.
 - **Quality & Optimization:** `godot-testing-patterns`, `godot-performance-optimization`, `godot-export-builds`, `godot-debugging-profiling`.
 
 ### Engineering workflow skills (mattpocock/skills)
