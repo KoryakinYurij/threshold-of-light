@@ -61,6 +61,7 @@ See `README.md` for full design doc.
 - See `docs/research/design-and-release-supplement.md` for game design and production: push-your-luck evacuation balance, 4-resource economy, route-graph generation invariants, game feel, 2D lighting, playtesting/telemetry, itch.io/Steam release path.
 - See `docs/research/production-and-ai-workflow-supplement.md` for production pipeline (prototype vs vertical slice), tool stack, CI/CD, production SaveManager reference, and the prompt library for AI sessions.
 - **MCP Server requirement:** AI agents working in this project must use the `@coding-solo/godot-mcp` server configured in `.mcp.json` to run scenes, capture debug output, and inspect nodes.
+- **Negative scope:** Strict single-player PC focus. No multiplayer/RPC, no MOBA lane/tower logic, no idle/clicker numbers scaling, no mobile touch controls.
 - No external dependencies for MVP core loop.
 - Save format: JSON via `ConfigFile` for MVP, atomic write, 3 slots, backup.
 - Hub layout: fixed socket positions around lighthouse (no free drag-and-drop in MVP).
