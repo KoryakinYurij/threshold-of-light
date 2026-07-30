@@ -30,6 +30,21 @@ Game-design and production companion: extraction risk/reward math, economy fauce
 
 Production pipeline (prototype vs vertical slice, phase mapping), solo tool stack with licenses, CI/CD reference (gdtoolkit + GUT + Godot CI + Butler), production-grade SaveManager reference, anti-patterns, and the project's AI prompt library. See `docs/research/production-and-ai-workflow-supplement.md`.
 
+### Required MCP Server: godot-mcp
+**CRITICAL FOR ALL AGENTS:** Working in this repository requires the **`godot-mcp`** server ([Coding-Solo/godot-mcp](https://github.com/Coding-Solo/godot-mcp)). It bridges the AI agent with Godot 4.7, allowing process execution, scene launching, and real-time debug log capture.
+- Root configuration file: `.mcp.json`
+- Command: `npx -y @coding-solo/godot-mcp`
+- Skill reference: `.agents/skills/godot-mcp-setup/SKILL.md`
+
+### Godot 4 Agentic Skills (thedivergentai/gd-agentic-skills)
+Located in `.agents/skills/`:
+- `godot-gdscript-mastery` — Typed GDScript 2.0 conventions & patterns.
+- `godot-autoload-architecture` — Singleton best practices and limits.
+- `godot-signal-architecture` — Decoupled event buses and call down / signal up rules.
+- `godot-resource-data-patterns` — Data-driven `.tres` resources (read-only definitions).
+- `godot-save-load-systems` — Atomic save pipeline with `.bak` and version migration.
+- `godot-characterbody-2d`, `godot-2d-physics`, `godot-combat-system`, `godot-genre-roguelike`, `godot-procedural-generation`, `godot-testing-patterns`, `godot-performance-optimization`, `godot-ui-containers`.
+
 ### Engineering workflow skills (mattpocock/skills)
 
 These skills are loaded from `.agents/skills/` and follow the Matt Pocock engineering workflow.
