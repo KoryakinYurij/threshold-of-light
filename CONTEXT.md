@@ -41,8 +41,7 @@
 
 ## Naming
 
-- Scenes: PascalCase (e.g., `HubScreen.tscn`)
-- Scripts: PascalCase matching attached node (e.g., `hub_screen.gd`)
+- Scene and script files: snake_case (e.g., `hub_screen.tscn`, `hub_screen.gd`) — Godot convention; `class_name` and node names stay PascalCase (e.g., `HubScreen`)
 - Groups: snake_case (e.g., `enemies`, `interactables`)
 - Data Resources: PascalCase + `Definition` suffix (e.g., `EnemyDefinition.tres`)
 
@@ -60,6 +59,7 @@ See `README.md` for full design doc.
 - See `docs/research/game-dev-handbook.md` for the comprehensive development guide.
 - See `docs/research/godot-47-supplement.md` for Godot 4.7 / GDScript specifics and genre-technical details.
 - See `docs/research/design-and-release-supplement.md` for game design and production: push-your-luck evacuation balance, 4-resource economy, route-graph generation invariants, game feel, 2D lighting, playtesting/telemetry, itch.io/Steam release path.
+- See `docs/research/production-and-ai-workflow-supplement.md` for production pipeline (prototype vs vertical slice), tool stack, CI/CD, production SaveManager reference, and the prompt library for AI sessions.
 - No external dependencies for MVP core loop.
 - Save format: JSON via `ConfigFile` for MVP, atomic write, 3 slots, backup.
 - Hub layout: fixed socket positions around lighthouse (no free drag-and-drop in MVP).
