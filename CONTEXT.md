@@ -42,6 +42,7 @@
 ## Naming
 
 - Scene and script files: snake_case (e.g., `hub_screen.tscn`, `hub_screen.gd`) — Godot convention; `class_name` and node names stay PascalCase (e.g., `HubScreen`)
+- **Autoload singletons do NOT declare `class_name`** — the autoload registration name is the only global name (`GameState`, `EventBus`, `SeedService`). Declaring both raises `Class "X" hides an autoload singleton`. See ADR-005.
 - Groups: snake_case (e.g., `enemies`, `interactables`)
 - Data Resources: PascalCase + `Definition` suffix (e.g., `EnemyDefinition.tres`)
 
@@ -64,6 +65,8 @@ See `README.md` for full design doc.
 - **Negative scope:** Strict single-player PC focus. No multiplayer/RPC, no MOBA lane/tower logic, no idle/clicker numbers scaling, no mobile touch controls.
 - No external dependencies for MVP core loop.
 - Save format: JSON via `FileAccess` for save slots; `ConfigFile` (INI) only for settings (see ADR-001). Atomic write, 3 slots, backup.
+- **Save typing:** `JSON.parse_string` returns every number as float — cast each integer field explicitly on read, via a typed DTO layer per section. See ADR-003.
+- **Master seed** is capped to `2^53-1` so it survives a JSON round-trip intact; sub-seeds are derived, never stored. See ADR-004.
 - Hub layout: fixed socket positions around lighthouse (no free drag-and-drop in MVP).
 - Expedition navigation: sequential choice (2–3 visible options per step).
 - Audio: deferred to Phase 2.

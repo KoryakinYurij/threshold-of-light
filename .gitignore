@@ -15,8 +15,9 @@ Thumbs.db
 build/
 exports/
 
-# Imported assets (cache)
-.import/
+# NOTE: Godot 3 used an `.import/` cache dir; Godot 4 stores it in `.godot/` (above).
+# `*.import` sidecars next to assets, and `*.uid` sidecars next to scripts, MUST be
+# committed — see https://godotengine.org/article/uid-changes-coming-to-godot-4-4/
 
 # Kilo local config (canonical skills live in .agents/skills/)
 .kilo/
