@@ -10,9 +10,9 @@ Accepted
 
 ## Decision
 
-- Engine: Godot 4.7.x stable
+- Engine: Godot 4.7.1 stable (patch version pinned; bump patch versions explicitly)
 - Language: GDScript 2.0 with static typing
-- Save format: JSON via ConfigFile for MVP
+- Save format: JSON (plain text, via `FileAccess`) for save slots; `ConfigFile` (INI) only for settings. Note: an earlier wording here said "JSON via ConfigFile" — that was a category error: ConfigFile is INI-format and stores no JSON; the intended split (JSON saves / INI settings) is what ships.
 - No external dependencies for core loop
 - Compatibility renderer for Windows-first export
 

@@ -543,6 +543,8 @@ res://
 
 ### Фаза 1 — greybox
 
+> 📌 **Обновление 2026-07-31 (аудит, item 2):** сохранения **входят** в Phase 1 (SaveManager + RunState/ProfileState — приоритет «стабильность сохранений» важнее чистоты среза; acceptance-требование полного цикла). Канонический список задач Phase 1 — в `README.md` «Phase 1 — Greybox»; пункт «сохранение» из Фазы 2 считать уже начатым здесь.
+
 Создай:
 
 - один хаб;
@@ -717,7 +719,7 @@ fun первого полного цикла
 Используй конкретную версию Godot, выбранную до начала разработки. Для текущего прототипа зафиксируй:
 
 ```text
-Engine: Godot 4.6.stable
+Engine: Godot 4.7.1.stable   # обновлено 2026-07-31 по результатам аудита (docs/research/phase-1-readiness-audit.md, item 1) и ADR-001
 Language: GDScript 2.0
 Renderer: Compatibility для Web/широкой совместимости; Forward+ только при подтверждённой необходимости
 Targets: Windows first; Web only after core slice is stable
