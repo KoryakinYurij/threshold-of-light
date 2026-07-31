@@ -423,7 +423,7 @@ func draw(rng: RandomNumberGenerator, max_rarity: int = 99) -> StringName:
 
 У вас есть `tests/`. В Godot два主流-фреймворка:
 
-- **GUT (Godot Unit Test)** — самый популярный, GDScript-нативный.
+- **GUT (Godot Unit Test)** — самый популярный, GDScript-нативный. ⚠️ **Пин версии:** для Godot 4.7.x — **GUT 9.7.1** (ветка `godot_4_7`; таблица совместимости bitwes/Gut). Не ставить «просто последний 9.x»: 9.6.x рассчитан на Godot 4.6.x.
 - **gdUnit4** — альтернатива, ближе к xUnit-стилю.
 
 ### Что тестировать в первую очередь
@@ -458,6 +458,8 @@ func draw(rng: RandomNumberGenerator, max_rarity: int = 99) -> StringName:
 ---
 
 ## 16. Производственный план: вертикальный срез для ВАШЕЙ игры
+
+> ⚠️ **Superseded (2026-07-31):** нумерация фаз ниже («Фаза 0/1/2») расходилась с канонической таблицей проекта. Каноничны: **README «Phase 1 — Greybox»** + **design-supplement §11** (Phase 1 Greybox → Phase 2 Systemic slice → Phase 3 Balance slice → Phase 4 Polish). Этот раздел читайте как исторический контекст рассуждений, а не как план к исполнению (см. аудит `docs/research/phase-1-readiness-audit.md`, item 5).
 
 Жанровый микс (hub + extraction + roguelite + action) — **очень амбициозно для первого проекта**. Риск «построить всё сразу и утонуть» — главный. Поэтому:
 

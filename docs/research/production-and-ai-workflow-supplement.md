@@ -160,7 +160,7 @@ Alpha (Feature Complete) → Beta (Content Complete) → Release Candidate → R
 | Шрифты | **Google Fonts**, Font Squirrel, Game-icons.net | бесплатно/OFL | ⚠️ **проверка кириллических глифов обязательна** — см. design-supplement §8.1 (пиксельные: Press Start 2P — кириллица есть; VT323 — есть; m6x11 — есть) |
 | Git LFS | `.gitattributes` для `*.png`, `*.wav`, `*.ogg`, `*.mp4` | бесплатно | Включить **до** первых больших бинарников |
 | Линт/формат GDScript | **gdtoolkit** (`gdlint`, `gdformat`) — PyPI | MIT, `pip install "gdtoolkit==4.*"` | Верифицировано; гонять до коммита |
-| Тесты | **GUT v9** (Godot 4) | MIT, в `addons/` | headless-команда — раздел 5.1 |
+| Тесты | **GUT 9.7.1** (Godot 4.7.x; ветка `godot_4_7`) | MIT, в `addons/` | headless-команда — раздел 5.1 |
 | Хостинг билдов | **itch.io + butler** | бесплатно | Дельта-патчи; каналы windows/linux/html5 |
 
 ### 4.2. AI-арт: реальные ограничения (для плана ассетов)
@@ -240,7 +240,7 @@ jobs:
     needs: checks
     runs-on: ubuntu-latest
     container:
-      image: barichello/godot-ci:4.7   # держать вровень со stable проекта
+      image: barichello/godot-ci:4.7.1   # держать вровень со stable проекта (тег проверен: Docker Hub, 2026-07)
     steps:
       - uses: actions/checkout@v4
       - name: GUT tests

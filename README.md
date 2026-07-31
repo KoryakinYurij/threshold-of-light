@@ -65,7 +65,7 @@ res://
 4. ModuleDefinition (Custom Resource)
 5. ExpeditionMap — 7 узлов, seed-генератор с инвариантами
 6. ExpeditionController — переход между узлами
-7. Player (скaut) — движение, projectile, dash
+7. Player (scout) — движение, projectile, dash
 8. Enemy (Преследователь) — FSM: IDLE → SEEK → ATTACK → RECOVER
 9. CombatDirector — урон, death, награда
 10. ExtractionSystem — эвакуация, возврат в хаб
