@@ -118,3 +118,7 @@ static constexpr uint8_t max_uuid_number_length = 13;
 ## License
 
 MIT
+
+## Windows Development
+
+See docs/windows-development.md for the verified local Godot setup and daily workflow.
