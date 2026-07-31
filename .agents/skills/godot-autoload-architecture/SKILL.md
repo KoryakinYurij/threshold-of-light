@@ -70,6 +70,7 @@ State holder vs pure event bus split.
 - **NEVER free an Autoload node manually** — Removing a singleton from the root can leave dangling references that crash the engine.
 - **NEVER use AutoLoads for UI elements that aren't global** — Popups that only exist in one level should be in that level, not a global singleton.
 - **NEVER assume `get_tree().current_scene` is accurate in `_ready()`** — In Autoloads, the active scene might still be initializing. Access it via `get_tree().root.get_child(-1)`.
+- **NEVER declare `class_name` on an Autoload script** — Godot 4 shares the global namespace between `class_name` and Autoload singletons. Declaring `class_name GameState` on an Autoload registered as `GameState` in `project.godot` causes compiler error `Class "GameState" hides an autoload singleton`. Autoload registration name is the only global name needed.
 - **NEVER skip `process_mode` configuration** — If your global console or music manager needs to work while the game is paused, set `process_mode = PROCESS_MODE_ALWAYS`.
 
 ---

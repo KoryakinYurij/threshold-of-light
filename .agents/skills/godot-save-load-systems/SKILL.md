@@ -28,7 +28,8 @@ JSON serialization, version migration, and PERSIST group patterns define robust 
 - **NEVER rely on get_instance_id() for cross-session identification** — These IDs are assigned at runtime and change every time the game restarts. Generate your own persistent `String` UUIDs for game objects.
 - **NEVER forget to call duplicate(true) on a loaded Resource stats block** — If multiple enemies load the same "goblin_stats.tres", they will all share the same health pool unless duplicated.
 - **NEVER use the "allow_objects" flag in store_var/get_var for untrusted data** — Setting this to `true` allows full object decoding, which is a major security risk for saves downloaded from the web.
-- **NEVER use JSON for data requiring strict type preservation** — JSON converts `Vector3` to a string or dictionary. For strict data types, use `var_to_bytes()` or a binary format.
+- **NEVER assume JSON.parse_string preserves integer types** — `JSON.parse_string()` returns all numbers as `float`. Statically typed integer fields (`var level: int`) or DTO deserializations must explicitly cast numbers via `int(dict["key"])`.
+- **NEVER store 64-bit integer seeds directly in JSON without capping** — Godot's `RandomNumberGenerator.seed` is `uint64`, but JSON numbers pass through IEEE 754 `double` (53-bit mantissa). Seeds greater than $2^{53}-1$ (`9007199254740991`) suffer precision truncation during JSON round-trips, breaking seed reproducibility. Cap master seeds to `2^53 - 1` (`MAX_SEED = 9007199254740991`).
 - **NEVER leave internal metadata (set_meta) in persistent dictionaries** — This unnecessarily inflates save file size. Clean your dictionaries before serialization.
 
 ---

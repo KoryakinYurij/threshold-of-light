@@ -24,6 +24,7 @@ Expert guidance for writing performant, maintainable GDScript — Godot-landmine
 - **NEVER use `is` followed by a hard cast** — If the type check passes but the object changes, it crashes. Use `as` and check for null.
 - **NEVER use `print()` for production debugging** — Use `push_error()`, `push_warning()`, or breakpoints.
 - **NEVER pre-load huge resources in `_ready()`** — Use `ResourceLoader.load_threaded_request()` for async loading.
+- **NEVER declare `class_name` on Autoload scripts** — `class_name` and Autoload singletons share the global script namespace. Declaring `class_name MySingleton` on a script registered as `MySingleton` in `project.godot` causes compiler error `Class "MySingleton" hides an autoload singleton`.
 - **NEVER use global variables in Autoloads when `static var` is sufficient** — Static variables offer better encapsulation.
 
 ---
