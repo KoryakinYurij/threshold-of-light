@@ -10,6 +10,10 @@ GitHub Issues in this repository. See `docs/agents/issue-tracker.md`.
 
 Five canonical roles: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
 
+### Design questions
+
+Owner-level design forks (mechanics, risk, game feel) live in `docs/design/OPEN-QUESTIONS.md`. Agents do not settle them: record the fork there and apply `ready-for-human` instead of choosing.
+
 ### Domain docs
 
 Single-context layout. `CONTEXT.md` + `docs/adr/` for ADRs. See `docs/agents/domain.md`.
