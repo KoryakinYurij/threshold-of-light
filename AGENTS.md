@@ -1,5 +1,19 @@
 # AGENTS.md
 
+## Mandatory first step: load project skills
+
+**Before doing any work in this repository, every agent MUST read and follow the project skills.**
+
+1. List available skills under `.agents/skills` (e.g. `dir .agents/skills`).
+2. Load every skill relevant to the task from `.agents/skills/<skill-name>/SKILL.md` (Godot skills, engineering workflow skills, etc.). At minimum, read the relevant Godot skill before touching game code.
+3. Follow the loaded skill instructions; do not reimplement what a skill already covers.
+
+The complete catalog is listed under sections "Godot 4 Agentic Skills" and "Engineering workflow skills" below.
+
+---
+
+
+
 ## Agent skills
 
 ### Issue tracker

@@ -5,6 +5,7 @@ extends Node
 ##
 ## Маршруты — SPEC-01 §3. Сцены экспедиции (expedition_map, combat_arena)
 ## появятся в T-03/T-04: пока их нет, маршрут логирует ошибку и не переключает.
+## T-03: combat_requested (кнопка хаба) ведёт на готовую арену.
 
 const HUB_SCENE: String = "res://scenes/main/hub_screen.tscn"
 const EXPEDITION_MAP_SCENE: String = "res://scenes/expedition/expedition_map.tscn"
@@ -13,6 +14,7 @@ const COMBAT_ARENA_SCENE: String = "res://scenes/combat/combat_arena.tscn"
 
 func _ready() -> void:
 	EventBus.game_started.connect(_on_game_started)
+	EventBus.combat_requested.connect(func() -> void: _goto(COMBAT_ARENA_SCENE))
 	EventBus.expedition_requested.connect(func() -> void: _goto(EXPEDITION_MAP_SCENE))
 	EventBus.node_entered.connect(_on_node_entered)
 	EventBus.node_cleared.connect(func(_index: int, _rewards: Dictionary) -> void: _goto(EXPEDITION_MAP_SCENE))

@@ -7,10 +7,12 @@ extends Node
 ##
 ## Набор сигналов — SPEC-01 §2. Дополнительно `game_started` (решение
 ## SPEC-01 §3: меню эмитит в EventBus; слот забирает SaveManager и SceneRouter).
+## `combat_requested` — T-03: кнопка хаба открывает тестовую арену напрямую.
 
 # --- Навигация ---
 ## Меню запустило игру. Слот, с которого играем (0..2).
 signal game_started(slot: int)
+signal combat_requested()
 signal expedition_requested()
 signal node_entered(node_index: int, node_type: int)
 signal node_cleared(node_index: int, rewards: Dictionary)
