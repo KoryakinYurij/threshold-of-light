@@ -11,6 +11,7 @@ extends Control
 func _ready() -> void:
 	%AddMaterialsButton.pressed.connect(_on_add_materials)
 	%NewRunButton.pressed.connect(_on_new_run)
+	%CombatButton.pressed.connect(_on_combat)
 	%SaveButton.pressed.connect(_on_save)
 	%ReloadButton.pressed.connect(_on_reload)
 	%MenuButton.pressed.connect(_on_menu)
@@ -46,6 +47,14 @@ func _on_new_run() -> void:
 	run.visited_nodes = PackedInt32Array([0, 1])
 	run.scout_hp = 100
 	_refresh()
+
+
+## Вход в боевой узел. Переключением занимается SceneRouter — хаб об арене
+## не знает и знать не должен (SPEC-01 §3).
+func _on_combat() -> void:
+	if not GameState.has_run():
+		GameState.begin_run()
+	EventBus.node_entered.emit(GameState.current_run.current_node_index, 0)
 
 
 func _on_save() -> void:

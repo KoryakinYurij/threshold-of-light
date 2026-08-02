@@ -10,10 +10,28 @@ extends Node
 ## эвакуация и смерть появятся в T-04, проверять там пока нечего.
 
 const EXPECTED_AUTOLOADS: Array[String] = [
-	"EventBus", "SeedService", "GameState", "SaveManager", "SceneRouter"
+	"EventBus", "SeedService", "GameState", "SaveManager", "SceneRouter", "CombatLog"
 ]
 const TEST_SLOT: int = 2
 const BACKUP_SLOT: int = 1
+
+## Дефолты из ANSWERS-v0.1.md §Q-14. Проверяются числом, а не «примерно»:
+## T-03 обязан стартовать именно с них, иначе замеры T-06 не с чем сводить.
+const Q14_DEFAULTS: Dictionary = {
+	"scout_speed": 220.0,
+	"scout_max_hp": 100.0,
+	"dash_duration": 0.30,
+	"dash_iframes": 0.30,
+	"dash_cooldown": 0.55,
+	"dash_distance": 200.0,
+	"shot_cooldown": 0.35,
+	"shot_damage": 10.0,
+	"enemy_hp_base": 50.0,
+	"enemy_speed": 140.0,
+	"enemy_damage": 10.0,
+	"telegraph_time": 0.45,
+	"enemy_attack_cd": 1.20,
+}
 
 var _checks: int = 0
 var _failures: Array[String] = []
@@ -28,6 +46,10 @@ func _ready() -> void:
 	_suite_seed_boundaries()
 	_suite_atomicity_and_backup()
 	_suite_settings()
+	_suite_combat_tuning()
+	_suite_combat_stats()
+	_suite_combat_log()
+	await _suite_combat_scene()
 
 	SaveManager.delete_slot(TEST_SLOT)
 	SaveManager.delete_slot(BACKUP_SLOT)
@@ -230,6 +252,147 @@ func _suite_settings() -> void:
 	_check(bool(SettingsStore.get_value("debug", "panel_open", false)) == true, "bool пережил ConfigFile")
 	_check(SettingsStore.get_value("нет", "такого", "по умолчанию") == "по умолчанию", "значение по умолчанию отдаётся")
 	DirAccess.remove_absolute(SettingsStore.PATH)
+
+
+func _suite_combat_tuning() -> void:
+	print("[бой: ползунки]")
+	DirAccess.remove_absolute(SettingsStore.PATH)
+	CombatTuning.reset_to_defaults()
+
+	for key: String in Q14_DEFAULTS:
+		_check(
+			is_equal_approx(CombatTuning.f(key), float(Q14_DEFAULTS[key])),
+			"дефолт %s == %s (Q-14), получено %s" % [key, Q14_DEFAULTS[key], CombatTuning.f(key)]
+		)
+	_check(CombatTuning.SPECS.size() == Q14_DEFAULTS.size(),
+		"ползунков ровно столько, сколько дефолтов Q-14 (%d)" % CombatTuning.SPECS.size())
+
+	# Q-03: i-frames покрывают дэш целиком. Разъехались — сломан замер, а не число.
+	_check(is_equal_approx(CombatTuning.f("dash_iframes"), CombatTuning.f("dash_duration")),
+		"i-frames == длительность дэша (Q-03)")
+
+	var seen := {}
+	for spec: Dictionary in CombatTuning.SPECS:
+		var key := String(spec["key"])
+		_check(not seen.has(key), "ключ %s не дублируется" % key)
+		seen[key] = true
+		var d := float(spec["default"])
+		_check(d >= float(spec["min"]) and d <= float(spec["max"]),
+			"дефолт %s внутри границ ползунка" % key)
+		_check(String(spec["src"]) != "", "у %s указан вопрос-источник" % key)
+
+	# Границы обязаны пускать значения, которыми Q-02 велит ставить эксперимент.
+	var tele := CombatTuning.spec_of("telegraph_time")
+	_check(float(tele["min"]) <= 0.15 and float(tele["max"]) >= 0.45,
+		"телеграф крутится и на 0.15, и на 0.45 (эксперимент Q-02)")
+	_check(float(CombatTuning.spec_of("dash_iframes")["min"]) <= 0.0,
+		"i-frames крутятся в ноль (эксперимент Q-03)")
+
+	# K(d) = 1.15^d (Q-11) и бюджет HP узла из Q-14: 6 × 50 × K(1) = 345.
+	# Ровного числа тут не будет: 1.15 в double — 1.1499999…, и 50 × K(1) даёт
+	# 57.4999…, то есть край округления. Проверяем бюджет, а не последний бит.
+	_check(is_equal_approx(CombatTuning.k_depth(0), 1.0), "K(0) == 1.0")
+	_check(is_equal_approx(CombatTuning.k_depth(1), 1.15), "K(1) == 1.15")
+	var hp_d1 := CombatTuning.enemy_hp_at(1)
+	_check(hp_d1 == 57 or hp_d1 == 58, "HP врага на d=1 == 57–58 (50 × 1.15 = 57.5), получено %d" % hp_d1)
+	_check(absf(float(hp_d1 * 6) - 345.0) <= 3.0,
+		"бюджет боевого узла на d=1 ≈ 345 HP (Q-14), получено %d" % (hp_d1 * 6))
+
+	# Состояние панели переживает перезапуск .exe: пишем, роняем кэш, читаем.
+	CombatTuning.set_value("telegraph_time", 0.15)
+	CombatTuning.set_value("hit_stop", false)
+	_check(CombatTuning.flush(), "панель сброшена на диск")
+	CombatTuning._loaded = false
+	CombatTuning._values = {}
+	_check(is_equal_approx(CombatTuning.f("telegraph_time"), 0.15), "телеграф 0.15 пережил перезапуск")
+	_check(CombatTuning.b("hit_stop") == false, "флажок hit-stop пережил перезапуск")
+	_check(is_equal_approx(CombatTuning.f("dash_iframes"), 0.30), "нетронутый ползунок остался дефолтным")
+
+	CombatTuning.reset_to_defaults()
+	_check(is_equal_approx(CombatTuning.f("telegraph_time"), 0.45), "сброс вернул телеграф к 0.45")
+	_check(CombatTuning.b("hit_stop") == true, "сброс вернул флажок hit-stop")
+	CombatTuning.flush()
+	DirAccess.remove_absolute(SettingsStore.PATH)
+
+
+func _suite_combat_stats() -> void:
+	print("[бой: счётчики]")
+	var s := CombatStats.new()
+	_check(is_equal_approx(s.hit_rate(), 0.0), "hit_rate пустого узла == 0, а не деление на ноль")
+	_check(is_equal_approx(s.dodge_rate(), 0.0), "dodge_rate пустого узла == 0")
+
+	s.shots_fired = 20
+	s.shots_hit = 9
+	_check(is_equal_approx(s.hit_rate(), 0.45), "hit_rate 9/20 == 0.45 (гипотеза Q-14)")
+
+	s.enemy_attacks = 10
+	s.attacks_dodged_iframes = 4
+	s.attacks_evaded_range = 2
+	s.attacks_hit = 4
+	_check(is_equal_approx(s.dodge_rate(), 0.6), "dodge_rate считает i-frames и уход шагом вместе")
+
+	var d := s.to_dict()
+	_check(typeof(d["shots_fired"]) == TYPE_INT, "shots_fired это TYPE_INT (ADR-003)")
+	_check(typeof(d["hit_rate"]) == TYPE_FLOAT, "hit_rate это TYPE_FLOAT")
+	_check(d.has("attacks_dodged_iframes") and d.has("attacks_evaded_range"),
+		"i-frames и уход шагом разведены в логе (замер Q-03)")
+
+
+func _suite_combat_log() -> void:
+	print("[бой: телеметрия]")
+	CombatLog.clear()
+	_check(CombatLog.read_all().is_empty(), "пустой лог читается как пустой массив")
+
+	EventBus.combat_recorded.emit({"hit_rate": 0.45, "shots_fired": 20, "cleared": true})
+	EventBus.combat_recorded.emit({"hit_rate": 0.5, "shots_fired": 10, "cleared": false})
+	var rows := CombatLog.read_all()
+	_check(rows.size() == 2, "две записи дописаны, а не перезаписаны (получено %d)" % rows.size())
+	if rows.size() == 2:
+		_check(is_equal_approx(float(rows[0]["hit_rate"]), 0.45), "первая запись цела после второй")
+		_check(bool(rows[1]["cleared"]) == false, "смерть тоже попадает в лог")
+	CombatLog.clear()
+	_check(CombatLog.read_all().is_empty(), "лог очищается")
+
+
+func _suite_combat_scene() -> void:
+	print("[бой: сцена]")
+	CombatTuning.reset_to_defaults()
+	for path: String in [
+		"res://scenes/combat/scout.tscn",
+		"res://scenes/combat/enemy.tscn",
+		"res://scenes/combat/projectile.tscn",
+		"res://scenes/ui/tuning_panel.tscn",
+		"res://scenes/combat/combat_arena.tscn",
+	]:
+		var packed: PackedScene = load(path)
+		_check(packed != null and packed.can_instantiate(), "%s грузится и инстанцируется" % path)
+
+	# Дым: арена поднимается целиком и разводит первую волну. Ловит ошибки
+	# .tscn и preload, которых headless-импорт не видит.
+	GameState.reset()
+	GameState.begin_run(424242)
+	var arena: Node2D = load("res://scenes/combat/combat_arena.tscn").instantiate()
+	add_child(arena)
+	await get_tree().process_frame
+	await get_tree().physics_frame
+
+	var scout: Scout = arena.get_node_or_null("Scout") as Scout
+	_check(scout != null, "разведчик появился на арене")
+	var enemies := 0
+	for child: Node in arena.get_children():
+		if child is Enemy:
+			enemies += 1
+	_check(enemies == 2, "первая волна — ровно 2 врага на арене (получено %d)" % enemies)
+	if scout != null:
+		_check(scout.hp == 100 and scout.max_hp == 100, "HP разведчика поднялось из ползунка")
+		_check(scout.is_invulnerable() == false, "вне дэша разведчик уязвим")
+	_check(arena.get_node_or_null("Walls") != null, "стены арены собраны")
+
+	arena.queue_free()
+	await get_tree().process_frame
+	_check(is_equal_approx(Engine.time_scale, 1.0), "time_scale вернулся в 1.0 после сноса арены")
+	CombatLog.clear()
+	GameState.reset()
 
 
 # --- Мелочи ---

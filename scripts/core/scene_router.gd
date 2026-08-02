@@ -7,11 +7,13 @@ extends Node
 
 const SCENE_MAIN_MENU: String = "res://scenes/main/main_menu.tscn"
 const SCENE_HUB: String = "res://scenes/main/hub_screen.tscn"
+const SCENE_COMBAT: String = "res://scenes/combat/combat_arena.tscn"
 
 
 func _ready() -> void:
 	EventBus.game_started.connect(_on_game_started)
 	EventBus.returned_to_hub.connect(_on_returned_to_hub)
+	EventBus.node_entered.connect(_on_node_entered)
 
 
 func go_to_main_menu() -> void:
@@ -24,6 +26,11 @@ func _on_game_started(_slot: int) -> void:
 
 func _on_returned_to_hub() -> void:
 	_switch(SCENE_HUB)
+
+
+## Пока тип узла один — боевой. Разбор типов приедет с картой в T-04.
+func _on_node_entered(_node_index: int, _node_type: int) -> void:
+	_switch(SCENE_COMBAT)
 
 
 func _switch(path: String) -> void:

@@ -20,6 +20,14 @@ signal returned_to_hub()
 signal module_built(module_id: String, level: int)
 signal module_upgrade_requested(module_id: String)
 
+# --- Бой ---
+## Счётчики закрытого боевого узла. Отдельным сигналом от `node_cleared`:
+## `rewards` — это добыча, телеметрия к добыче отношения не имеет. Эмитится
+## в тот же момент, в том числе когда узел закрыт смертью разведчика.
+signal combat_recorded(stats: Dictionary)
+## Ползунки панели F1 изменились: живым сущностям пора перечитать числа.
+signal tuning_changed()
+
 # --- Персистентность ---
 ## reason: "hub" | "node_cleared" | "extraction" | "death"
 signal save_requested(reason: String)

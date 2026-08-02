@@ -1,0 +1,71 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/tuning_panel.gd" id="1_panel"]
+
+[node name="TuningPanel" type="PanelContainer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -430.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 700.0
+grow_horizontal = 0
+script = ExtResource("1_panel")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Column" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Margin/Column"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Ползунки боя — F1"
+
+[node name="NoteLabel" type="Label" parent="Margin/Column"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Метка справа от подписи — вопрос из ANSWERS-v0.1.md.
+Пока панель открыта, разведчик стоит: «выстрел» висит на кнопке мыши.
+HP врага применяется к следующей волне — для немедленного эффекта жми «Перезапустить узел»."
+autowrap_mode = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Column"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Column/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Separator" type="HSeparator" parent="Margin/Column"]
+layout_mode = 2
+
+[node name="Toggles" type="VBoxContainer" parent="Margin/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Column"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResetButton" type="Button" parent="Margin/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Сброс к дефолтам"
+
+[node name="RestartButton" type="Button" parent="Margin/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Перезапустить узел"
