@@ -1,5 +1,14 @@
 # AGENTS.md
 
+## Mandatory reading: project lessons
+
+**Every agent MUST read `docs/prototype/LESSONS-T-03.md` before starting work** —
+it contains the rules that slowed down and reduced quality of session T-03
+(5-minute rule, local skills first, file transport, Godot class cache, @export,
+smoke tests, review before commit).
+
+---
+
 ## Mandatory first step: load project skills
 
 **Before doing any work in this repository, every agent MUST read and follow the project skills.**
