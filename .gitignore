@@ -21,3 +21,6 @@ exports/
 
 # Kilo local config (canonical skills live in .agents/skills/)
 .kilo/
+
+# Local scratch area (to-tickets, triage briefs)
+.scratch/
