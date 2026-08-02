@@ -24,6 +24,7 @@ func _ready() -> void:
 	_suite_save_roundtrip()
 	_suite_seed_boundaries()
 	_suite_atomicity_and_backup()
+	_suite_backup_failure()
 	_suite_settings()
 
 	SaveManager.delete_slot(TEST_SLOT)
@@ -220,6 +221,25 @@ func _suite_atomicity_and_backup() -> void:
 	_check(from_backup != null and from_backup.hub_state.materials == 11, "из бэкапа приехало предыдущее состояние (materials == 11)")
 
 	SaveManager.delete_slot(BACKUP_SLOT)
+
+
+func _suite_backup_failure() -> void:
+	print("[сейв: ошибка backup]")
+	var slot := 0
+	SaveManager.delete_slot(slot)
+	GameState.reset()
+	GameState.hub.materials = 31
+	_check(SaveManager.save_to_slot(slot), "исходная запись для теста ошибки backup")
+
+	# Каталог на месте .bak заставляет copy_absolute вернуть ошибку.
+	var backup := SaveManager.backup_path(slot)
+	DirAccess.make_dir_absolute(backup)
+	GameState.hub.materials = 99
+	_check(not SaveManager.save_to_slot(slot), "ошибка создания backup отклоняет запись")
+	var restored := SaveManager.load_from_slot(slot)
+	_check(restored != null and restored.hub_state.materials == 31, "основной слот не заменён после ошибки backup")
+	DirAccess.remove_absolute(backup)
+	SaveManager.delete_slot(slot)
 
 
 func _suite_settings() -> void:

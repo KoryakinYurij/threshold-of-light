@@ -87,7 +87,11 @@ func _write_envelope(slot: int, env: SaveEnvelope) -> bool:
 	#    оставаться на месте до самого переименования.
 	var final := slot_path(slot)
 	if FileAccess.file_exists(final):
-		DirAccess.copy_absolute(final, backup_path(slot))
+		var backup_err := DirAccess.copy_absolute(final, backup_path(slot))
+		if backup_err != OK:
+			push_error("SaveManager: не создать бэкап слота %d (код %d), слот не тронут" % [slot, backup_err])
+			DirAccess.remove_absolute(tmp)
+			return false
 
 	# 4. Подмена.
 	if DirAccess.rename_absolute(tmp, final) != OK:

@@ -25,11 +25,24 @@ You can also double-click `project.godot`. On the first open, Godot imports asse
 - `F8` stops a running game.
 - Use the bottom `Output` and `Debugger` panels to inspect errors.
 
+## Canonical Development Environment
+
+After T-02, **all project work is Windows-only**: coding, Godot launches, manual
+playtesting, visual debugging, tests, and exports. The VPS is not a continuation
+workspace for this project. The previous VPS/headless runs are historical T-02
+verification only.
+
+Project root:
+
+```text
+D:\Code AI\Games\Godot v1
+```
+
 ## Agent Workflow
 
-Run the coding agent on **Windows** from this project root. That lets its project-level MCP server start Windows Godot directly. An agent running on a remote VPS does not automatically gain access to this Windows-local MCP server; it must use the SSH bridge instead.
+Run the coding agent on **Windows** from this project root. That lets its project-level MCP server start Windows Godot directly. Do not start the project agent on the remote VPS for future implementation work.
 
-Before implementation, ask the agent to read the project instructions, the current Phase 1 scope, context, and accepted ADRs. Keep the first task limited to the Phase 1 greybox, add tests with a pinned test addon when the first testable core system is introduced, and verify changes with Godot headless commands.
+Before implementation, ask the agent to read the project instructions, the current Phase 1 scope, context, and accepted ADRs. Keep each task limited to its ticket, add tests with a pinned test addon when the first testable core system is introduced, and verify changes with Windows Godot commands plus the manual/visual check appropriate to the ticket.
 
 ## Smoke Test Result
 
