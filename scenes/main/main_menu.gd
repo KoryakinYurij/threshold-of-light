@@ -1,6 +1,5 @@
 extends Control
 
-signal start_pressed
 signal quit_pressed
 
 func _ready() -> void:
@@ -8,7 +7,9 @@ func _ready() -> void:
 	%QuitButton.pressed.connect(_on_quit_pressed)
 
 func _on_start_pressed() -> void:
-	start_pressed.emit()
+	# SPEC-01 §3: меню эмитит в EventBus, локальный start_pressed удалён.
+	# Слот 0 — дефолтный; выбор слота появится с меню в T-07.
+	EventBus.game_started.emit(0)
 
 func _on_quit_pressed() -> void:
 	quit_pressed.emit()
