@@ -8,7 +8,7 @@ if not defined GODOT set "GODOT=godot.cmd"
 where %GODOT% >nul 2>&1 || set "GODOT=D:\Tools\Godot\4.7.1\godot.cmd"
 
 pushd "%PROJECT_DIR%"
-"%GODOT%" --headless --path . res://tests/run_tests.tscn
+call "%GODOT%" --headless --path . res://tests/run_tests.tscn
 set "RC=%ERRORLEVEL%"
 popd
 

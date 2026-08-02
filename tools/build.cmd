@@ -16,7 +16,7 @@ where %GODOT% >nul 2>&1 || set "GODOT=D:\Tools\Godot\4.7.1\godot.cmd"
 pushd "%PROJECT_DIR%"
 
 echo [1/3] Импорт ресурсов
-"%GODOT%" --headless --path . --import
+call "%GODOT%" --headless --path . --import
 if errorlevel 1 goto :fail_import
 
 if "%~1"=="--no-tests" (
@@ -29,7 +29,7 @@ if "%~1"=="--no-tests" (
 
 echo [3/3] Экспорт
 if not exist "%OUT_DIR%" mkdir "%OUT_DIR%"
-"%GODOT%" --headless --path . --export-release "%PRESET%" "%OUT_EXE%"
+call "%GODOT%" --headless --path . --export-release "%PRESET%" "%OUT_EXE%"
 if errorlevel 1 goto :fail_export
 if not exist "%OUT_EXE%" goto :fail_export
 

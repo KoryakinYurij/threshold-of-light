@@ -84,6 +84,7 @@ fixed@127.0.0.1:2222, ключ id_ed25519_migration, шелл — cmd.exe).
   по практике шипнутых игр (StS, Hades, Dead Cells, Hunt, Tarkov, RoR2, Rogue Legacy),
   28 внешних источников; стартовый пакет чисел выведен из одной модели с единственной
   ручкой калибровки `hit_rate` → `docs/prototype/ANSWERS-v0.1.md`.
+- **T-02 «Каркас и сборка».** Реализованы автолоады (`GameState`, `EventBus`, `SeedService`, `SaveManager`, `SceneRouter`), раздельные состояния, JSON-сейвы с атомарностью и бэкапами, пресет экспорта и `tools/build.cmd`; установлены шаблоны экспорта 4.7.1.stable, собран рабочий `build/windows/ThresholdOfLight.exe` (72/72 проверок зелёные) → `docs/prototype/BUILD.md`.
 
 ---
 
