@@ -66,7 +66,7 @@ res://
 5. ExpeditionMap — 7 узлов, seed-генератор с инвариантами
 6. ExpeditionController — переход между узлами
 7. Player (scout) — движение, projectile, dash
-8. Enemy (Преследователь) — FSM: IDLE → SEEK → ATTACK → RECOVER
+8. Enemy (Преследователь) — FSM: IDLE → SEEK → TELEGRAPH → ATTACK → RECOVER (5 состояний, SPEC-04 §5)
 9. CombatDirector — урон, death, награда
 10. ExtractionSystem — эвакуация, возврат в хаб
 11. RunState + ProfileState — сериализация
@@ -86,35 +86,12 @@ res://
 
 Требуется Godot 4.7.x stable. Откройте `project.godot` в редакторе и запустите основную сцену.
 
-### ⚠️ Первый запуск: проект ещё ни разу не открывали в редакторе
+### UID-примечание
 
-Все файлы (`project.godot`, `.tscn`) написаны текстом вручную. Признаки: нет `.godot/`, нет
-`*.import`-сайдкаров у ассетов, нет `*.uid`-сайдкаров у скриптов, а `main_menu.tscn` ссылается
-на скрипт через `path=` без `uid=`.
-
-Отсюда следствие, которое важно знать до первого коммита сцен: **UID в `main_menu.tscn`
-недействителен**. Там стоит `uid="uid://bq6v0xmainmenu"` — 14 символов после `uid://`, тогда как
-движок (`core/io/resource_uid.cpp`) допускает максимум 13:
-
-```cpp
-static constexpr uint8_t max_uuid_number_length = 13;
-// Max 0x7FFFFFFFFFFFFFFF (uid://d4n4ub6itg400) size is 13 characters.
-```
-
-Строка переполняет uint64 при парсинге, и редактор молча заменит её при первом сохранении сцены
-(прогон алгоритма `text_to_id` даёт `uid://xlpavb8by0sw` — round-trip не сохраняется).
-
-**Правильный порядок действий, а не ручная правка UID:**
-
-1. Открыть проект в Godot 4.7.x — редактор создаст `.godot/`, сгенерирует `*.import` и `*.uid`.
-2. Пересохранить `main_menu.tscn` (Ctrl+S) — движок перепишет UID на валидный и добавит `uid=`
-   в ссылку на скрипт.
-3. **Закоммитить** появившиеся `*.uid` и `*.import` — они часть состояния проекта, не артефакты
-   сборки ([Godot: UID changes in 4.4](https://godotengine.org/article/uid-changes-coming-to-godot-4-4/)).
-4. При перемещении скриптов через `git mv` двигать `.gd.uid` вместе с `.gd`, иначе ссылки рвутся.
-
-Писать UID руками не нужно ни здесь, ни в новых сценах — их выдаёт редактор.
-
+`main_menu.tscn` содержит невалидный UID (`uid="uid://bq6v0xmainmenu"` — 14 символов после
+`uid://`, движок допускает максимум 13). Движок молча заменит его при первом пересохранении
+сцены в редакторе (Ctrl+S). Это известный техдолг — см. раздел T-04 в
+`docs/prototype/PLAN-v0.1-deepseek.md`.
 ## License
 
 MIT

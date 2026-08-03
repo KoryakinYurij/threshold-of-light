@@ -36,7 +36,7 @@ func _ready() -> void:
 	# проверяется на Windows в оконном запуске. Не оставляем headless-процесс висеть.
 	if OS.has_feature("headless"):
 		print("[сцена: меню -> хаб через EventBus]")
-		print("  SKIP  headless VPS: scene-flow проверяется на Windows (см. T-02-REPORT)")
+		print("  SKIP  headless VPS: scene-flow проверяется на Windows (см. docs/prototype/JOURNAL.md, запись T-02)")
 		_finish_and_quit()
 		return
 

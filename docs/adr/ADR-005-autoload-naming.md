@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed (2026-07-31)
+Accepted (2026-08-03 — реализовано в T-02: автолоады без `class_name`, проверка в `tests/run_tests.gd`)
 
 ## Context
 

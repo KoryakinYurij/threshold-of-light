@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed (2026-07-31)
+Accepted (2026-08-03 — реализовано в T-02: DTO-слой `SaveSchema`, тест-контракт типов в `tests/run_tests.gd`)
 
 > Нумерация: ADR-002 зарезервирован за открытым PR #2 («unstable loot rule»). Этот ADR — 003, чтобы не было коллизии при мёрже.
 
