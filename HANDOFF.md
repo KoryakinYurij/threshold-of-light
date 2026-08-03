@@ -1,57 +1,61 @@
-# HANDOFF — T-03 закрыт
+# HANDOFF — T-03 закрыт (+ хотфикс 1739e0d)
 
 ## Состояние
 
 - Ветка: `прототип-дипсик`, Windows-копия `D:\Code AI\Games\Godot v1`.
-- Коммит: `5f545a7` (T-03), запушен в origin. Рабочее дерево чистое.
-- T-03 «Бой и панель тюнинга» закрыт. T-04 намеренно не начинался.
+- Коммиты сессии (все запушены в origin, дерево чистое, HEAD == origin):
+  - `5f545a7` — T-03: бой и панель тюнинга;
+  - `939669a` — docs: handoff T-03;
+  - `dbbed37` — docs: обязательные уроки T-03 (LESSONS-T-03.md + ссылка в AGENTS.md);
+  - `1739e0d` — fix: враг стабильно умирает с 3 ударов (мели-досягаемость, видимая смерть, живой слайдер HP скаута) + регресс-тест.
+- Ветки `master` и `proto/v0.1` не трогались. VPS не рабочая среда.
+- T-03 закрыт. T-04 намеренно не начинался.
 
 ## Что вошло в T-03
 
 - Скаут (`scenes/combat/scout.gd`): WASD, дэш с i-frames, мели-атака, буфер ввода.
 - Враг-преследователь (`scenes/combat/pursuer.gd`): FSM IDLE/SEEK/TELEGRAPH/ATTACK/RECOVER.
-- Боевые компоненты (`scripts/combat/`): `damage_data.gd`, `health_component.gd`,
-  `hurtbox.gd`, `melee_hitbox.gd` — урон: DamageData -> MeleeHitbox -> Hurtbox
-  -> HealthComponent (godot-combat-system).
-- Арена (`scenes/combat/combat_arena.gd` + `.tscn`): hit-stop, screenshake, HUD,
-  смерть скаута (R — рестарт), Esc — в хаб.
-- F1-панель (`scenes/ui/tuning_panel.gd`): 6 ползунков, применяются на лету,
-  сохраняются в `user://settings.cfg` (секция `combat`) через SettingsStore.
-- Интеграция: кнопка «Тестовый бой» в хабе -> `EventBus.combat_requested`
-  -> SceneRouter -> арена. AGENTS.md: обязательный первый шаг «load project
-  skills» из `.agents/skills`.
-- Отчёт: `docs/prototype/REPORT-T-03.md` (дефолты + обоснование + решения).
-- Смоук-тест: `tests/combat_smoke.tscn`/`.gd` (5 проверок: HP врага 30/30,
-  мели-урон 30->20, урон по скауту 100->75, 6 ползунков, i-frames 0.18).
+- Боевые компоненты (`scripts/combat/`): `damage_data.gd`, `health_component.gd`, `hurtbox.gd`, `melee_hitbox.gd` — урон: DamageData → MeleeHitbox → Hurtbox → HealthComponent (godot-combat-system).
+- Арена (`scenes/combat/combat_arena.gd` + `.tscn`): hit-stop, screenshake, HUD, смерть скаута (R — рестарт), Esc — в хаб.
+- F1-панель (`scenes/ui/tuning_panel.gd`): 6 ползунков, применяются на лету, сохраняются в `user://settings.cfg` (секция `combat`) через SettingsStore.
+- Интеграция: кнопка «Тестовый бой» в хабе → `EventBus.combat_requested` → SceneRouter → арена.
+- Отчёт: `docs/prototype/REPORT-T-03.md` (дефолты + обоснование + решения, дополнен секцией про хотфикс).
+
+## Хотфикс 1739e0d (по отзыву владельца «враг не умирает с 3 ударов»)
+
+**Диагностика:** headless-диагностика на живом коде с реальными настройками владельца показала — механика корректна: враг 30/30, мели 10 урона, смерть ровно с 3 ударов (и в статике, и в реальной погоне). Exe был свежий. Причина ощущения — промахи (досягаемость ~80px, окно 0.1с) + мгновенное исчезновение врага без фидбэка.
+
+**Найден настоящий баг T-03:** слайдер «HP скаута» не применялся — `scout._ready` выполняется раньше `arena._ready` (дети раньше родителя), параметры были пусты. Исправлено: `call_deferred('_apply_max_hp')` + повторное применение по сигналу `arena.tuning_changed`.
+
+**Исправления:**
+- Мели: радиус хитбокса 30→36, офсет 34→38, swing-окно 0.1→0.14с (~90px досягаемости);
+- Видимая смерть: фейд-аут 0.28с с расходящимся кольцом + мини-hit-stop и shake на килл (вместо мгновенного `queue_free`);
+- Живой слайдер HP скаута (см. выше);
+- Регресс-тест «3 удара = смерть» в смоуке.
+
+**Проверки:** `tools\test.cmd` 75/75, смоук 6/6 детерминированно (два прогона), `tools\build.cmd` пересобран, exe свежий.
 
 ## Проверки (зелёные)
 
 - `tools\test.cmd` — 75/75.
 - Headless-запуск проекта и арены — чистый.
-- Смоук-тест боя — 5/5.
+- Смоук-тест боя — 6/6 (включая «3 удара = смерть»).
 - `tools\build.cmd` — успешно, `build\windows\ThresholdOfLight.exe` собран.
-- Запуск собранного exe headless — чистый.
 
 ## ВАЖНО для следующего агента
 
-1. **Сначала прочитай скиллы** в `.agents/skills` (правило в AGENTS.md):
-   минимум `godot-combat-system`, `godot-input-handling`,
-   `godot-state-machine-advanced`, `godot-characterbody-2d`.
-2. **Рабочая среда — только Windows** через ssh-windows (туннель 2222).
-   Путь: `D:\Code AI\Games\Godot v1`. Ветки `master` и `proto/v0.1` не трогать.
-3. **Транспорт файлов:** кавычки через ssh-цепочку (bash -> OpenSSH -> cmd)
-   ненадёжны для путей с пробелами. Рабочий приём: писать файлы локально
-   (staging), `scp` в каталог без пробелов (`C:\Users\Fixed\`), затем
-   `cmd /d /c "cd /d D:\Code AI\Games\Godot v1 && move /y C:\Users\Fixed\<f> <отн.путь>"`.
-   Команды, работающие для проверок: `cmd /d /c "cd /d ... && ..."` без кавычек
-   в путях, относительные пути.
-4. **После добавления новых class_name-скриптов** обязательно прогоняй
-   `godot --headless --path . --import`, иначе глобальные классы не видны.
-5. Кодировка: файлы UTF-8 (русский в UI валиден). «Мусор» в консоли cmd —
-   отображение, сами байты целы (проверено sha256).
-6. Один таск — один коммит; после T-03 коммит `5f545a7` менять не нужно.
+1. **Обязательное чтение до работы:** `AGENTS.md` (роутер) и `docs/prototype/LESSONS-T-03.md` — 7 правил (5-минутное правило → независимый ревьюер, скиллы проекта сначала, транспорт файлов, `--import`, `@export`, smoke, ревью перед коммитом).
+2. **Сначала прочитай скиллы** в `.agents/skills` (минимум `godot-combat-system`, `godot-input-handling`, `godot-state-machine-advanced`, `godot-characterbody-2d`).
+3. **Рабочая среда — только Windows** через ssh-windows (туннель 2222). Ветки `master`/`proto/v0.1` не трогать.
+4. **Транспорт файлов:** кавычки через ssh-цепочку (bash → OpenSSH → cmd) ненадёжны для путей с пробелами. Рабочий приём: файлы локально (staging) → `scp` в `C:\Users\Fixed\` → `cmd /d /c "cd /d D:\Code AI\Games\Godot v1 && move /y C:\Users\Fixed\<f> <отн.путь>"`.
+5. **После добавления class_name-скриптов** — `godot --headless --path . --import`, иначе типы не видны headless.
+6. **Помни:** `use_custom_user_dir` в project.godot → `settings.cfg` лежит в `AppData\Roaming\ThresholdOfLight\`. Сейчас настройки владельца **сброшены на дефолты** (файл пропал при принудительном убийстве процесса игры в ходе диагностики) — игра на чистых дефолтах.
+7. Один таск — один коммит.
+
+## Осталось (маленькое)
+
+- **Ручная перепроверка владельцем** нового `build\windows\ThresholdOfLight.exe`: 3 удара убивают, смерть видна (фейд + кольцо), ползунки F1 применяются на лету и переживают рестарт. Если владелец подтвердит — T-03 полностью закрыт.
 
 ## Дальше (T-04, не начинать без задания)
 
-Карта экспедиции, extraction, death-loss, игровые точки сохранения; вход в
-арену через карту, а не кнопку хаба; снаряды (Forge of Form) — T-06.
+Карта экспедиции, extraction, death-loss, игровые точки сохранения; вход в арену через карту, а не кнопку хаба; снаряды (Forge of Form) — T-06.
