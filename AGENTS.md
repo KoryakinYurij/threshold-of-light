@@ -1,27 +1,43 @@
 # AGENTS.md
 
-## Mandatory reading: project lessons
+## Обзор
 
-**Every agent MUST read `docs/prototype/LESSONS-T-03.md` before starting work** —
-it contains the rules that slowed down and reduced quality of session T-03
-(5-minute rule, local skills first, file transport, Godot class cache, @export,
-smoke tests, review before commit).
+Godot 4.7.1 stable, GDScript, 2D. Ветка `прототип-дипсик` — одноразовый прототип: в `master` возвращаются только выводы, не код.
 
----
+## Сборка и тесты
 
-## Mandatory first step: load project skills
+- `tools\test.cmd` — тесты. Ждать `ЗЕЛЕНО` и `RC=0`.
+- `godot --headless --path . res://tests/combat_smoke.tscn` — смоук боя.
+- `godot --headless --path . --import` — обязательно после добавления скрипта с `class_name`.
+- Сборка exe — `docs/prototype/BUILD.md`. Работа с Windows-машиной — `docs/windows-development.md`.
 
-**Before doing any work in this repository, every agent MUST read and follow the project skills.**
+## Документация
 
-1. List available skills under `.agents/skills` (e.g. `dir .agents/skills`).
-2. Load every skill relevant to the task from `.agents/skills/<skill-name>/SKILL.md` (Godot skills, engineering workflow skills, etc.). At minimum, read the relevant Godot skill before touching game code.
-3. Follow the loaded skill instructions; do not reimplement what a skill already covers.
+**Один журнал вместо отчётов.** После задачи дописывай запись **снизу** в `docs/prototype/JOURNAL.md`, не длиннее 20 строк, формат — как у соседних записей.
 
-The complete catalog is listed under sections "Godot 4 Agentic Skills" and "Engineering workflow skills" below.
+Запрещено:
+- Создавать `REPORT-*.md`, `LESSONS-*.md`, `REVIEW-*.md`, `HANDOFF.md`. Всё идёт в журнал.
+- Дублировать текстом то, что видно в коде, в `git log` или в тестах.
+- Описывать то, чего ещё нет в коде.
 
----
+Живые документы — правь их, новых не заводи:
+`docs/prototype/PLAN-v0.1-deepseek.md` (план и статус) · `docs/prototype/ANSWERS-v0.1.md` (ответы на дизайн-вопросы) · `docs/prototype/BUILD.md` (сборка) · `CONTEXT.md` (термины) · `README.md` (для человека).
 
+Устаревшее удаляй, а не архивируй: история лежит в `git`.
 
+## Скиллы и справочники — рекомендация, не контракт
+
+Обязательны только `docs/adr/*` и `CONTEXT.md`. Всё остальное — совет.
+
+- `.agents/skills/` — общая библиотека скиллов по Godot, написана не под эту игру. Читай точечно, когда задача прямо совпадает со скиллом. Отклонение от скилла обоснования не требует.
+- `docs/research/*` и `docs/prompt_hub_expeditions_professional.md` — справочники, а не источник требований.
+- **Запрещено** объявлять блокером то, что требует скилл или справочник. Блокер — это упавший тест, сломанная сборка или нарушение ADR.
+
+## Границы
+
+- Ветки `master` и `proto/v0.1` не трогать. Работа только в `прототип-дипсик`.
+- В `master` из этой ветки ничего не мержить.
+- Дизайнерские развилки не решай сам: записывай в `docs/design/OPEN-QUESTIONS.md` и ставь метку `ready-for-human`.
 
 ## Agent skills
 
@@ -64,49 +80,10 @@ Production pipeline (prototype vs vertical slice, phase mapping), solo tool stac
 - Skill reference: `.agents/skills/godot-mcp-setup/SKILL.md`
 
 ### Godot 4 Agentic Skills (thedivergentai/gd-agentic-skills)
-Curated collection of **50 Godot 4.5+ skills** located in `.agents/skills/` (plus `godot-master` hub with its references library):
-- **Core GDScript & Architecture:** `godot-gdscript-mastery`, `godot-autoload-architecture`, `godot-signal-architecture`, `godot-resource-data-patterns`, `godot-save-load-systems`, `godot-scene-management`, `godot-composition`.
-- **2D Gameplay & Physics:** `godot-characterbody-2d`, `godot-2d-physics`, `godot-combat-system`, `godot-camera-systems`, `godot-input-handling`, `godot-tilemap-mastery`, `godot-2d-animation`.
-- **Genre & Systems:** `godot-genre-roguelike`, `godot-genre-action-rpg`, `godot-procedural-generation`, `godot-inventory-system`, `godot-dialogue-system`, `godot-state-machine-advanced`, `godot-audio-systems`.
-- **2.5D Reserve (Graphics/Space):** `godot-3d-lighting`, `godot-3d-materials`, `godot-3d-world-building`, `godot-adapt-2d-to-3d`, `godot-adapt-3d-to-2d`.
-- **Quality & Optimization:** `godot-testing-patterns`, `godot-performance-optimization`, `godot-export-builds`, `godot-debugging-profiling`.
+
+Библиотека из ~50 скиллов по Godot 4.5+ лежит в `.agents/skills/`. Список — командой `dir .agents/skills`. Это рекомендации, см. раздел «Скиллы и справочники».
 
 ### Engineering workflow skills (mattpocock/skills)
 
-These skills are loaded from `.agents/skills/` and follow the Matt Pocock engineering workflow.
-
-#### User-invoked orchestrators
-
-- `/ask-matt` — router over all skills; use when unsure which skill fits.
-- `/grill-me` — sharpen a plan/design with a relentless interview (no codebase).
-- `/grill-with-docs` — same interview, but writes ADRs and glossary into `CONTEXT.md` and `docs/adr/`.
-- `/handoff` — compact the current conversation into a handoff document for another agent.
-- `/prototype` — throwaway prototype to answer a design question.
-- `/research` — delegate reading legwork to a background agent, returns a cited Markdown file.
-- `/teach` — teach the user a new skill or concept within this workspace.
-
-#### Model-invoked discipline
-
-- `/tdd` — test-driven development; red-green-refactor loop.
-- `/diagnosing-bugs` — diagnosis loop for hard bugs and performance regressions.
-- `/codebase-design` — deep-module vocabulary and seam design.
-- `/domain-modeling` — sharpen project domain language and record ADRs.
-- `/improve-codebase-architecture` — scan for deepening opportunities.
-- `/implement` — implement a piece of work based on a spec or tickets.
-- `/code-review` — review changes since a fixed point along Standards and Spec axes.
-- `/resolving-merge-conflicts` — resolve in-progress git merge/rebase conflicts.
-- `/triage` — move issues through triage roles and write agent-ready briefs.
-- `/to-spec` — turn conversation into a spec and publish to issue tracker.
-- `/to-tickets` — break a plan into tracer-bullet tickets with blocking edges.
-- `/wayfinder` — plan huge chunks of work as a shared map of investigation tickets.
-- `/setup-matt-pocock-skills` — scaffold per-repo configuration for the engineering skills.
-
-#### Support skills
-
-- `/writing-great-skills` — reference for writing and editing skills.
-
-### Usage notes
-
-- Run `/setup-matt-pocock-skills` once per repo to configure issue tracker, triage labels, and doc layout.
-- Use `/ask-matt` when unsure which skill to use.
-- Skills in `.agents/skills/` are taken from `mattpocock/skills` (MIT license).
+Лежат в `.agents/skills/`, лицензия MIT. Список — `dir .agents/skills`. Рекомендации.
+Скилл `/handoff` в этом проекте **не использовать** — вместо handoff-документа пиши запись в журнал.
