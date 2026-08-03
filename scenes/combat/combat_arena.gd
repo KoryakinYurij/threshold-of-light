@@ -75,8 +75,9 @@ func emit_feedback(_at: Vector2, shake: float, stop_seconds: float) -> void:
 func notify_scout_hp(current: int, maximum: int) -> void:
 	$HUD/HP.text = "SCOUT  HP %d / %d" % [current, maximum]
 
-func notify_enemy_died(_enemy: Node) -> void:
+func notify_enemy_died(enemy: Node) -> void:
 	defeated_enemies += 1
+	emit_feedback(enemy.global_position, 0.55, 0.06)
 	if defeated_enemies >= 2:
 		status_label.text = "Арена зачищена — можно продолжать тестировать ползунки"
 

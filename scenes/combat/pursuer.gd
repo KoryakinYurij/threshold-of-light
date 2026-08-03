@@ -3,6 +3,8 @@ class_name Pursuer extends CharacterBody2D
 
 enum State { IDLE, SEEK, TELEGRAPH, ATTACK, RECOVER }
 
+const DEATH_FADE: float = 0.28
+
 var arena: Node
 var target: Node
 var state: State = State.IDLE
@@ -10,6 +12,7 @@ var state_elapsed: float = 0.0
 var attack_done: bool = false
 var attack_cooldown_left: float = 0.0
 var dead: bool = false
+var death_fade: float = 0.0
 var telegraph_direction: Vector2 = Vector2.UP
 var attack_flash: float = 0.0
 
@@ -23,6 +26,12 @@ func _ready() -> void:
 	queue_redraw()
 
 func _physics_process(delta: float) -> void:
+	if death_fade > 0.0:
+		death_fade -= delta
+		queue_redraw()
+		if death_fade <= 0.0:
+			queue_free()
+		return
 	if dead or target == null or not is_instance_valid(target) or target.get("dead") == true:
 		velocity = Vector2.ZERO
 		return
@@ -69,15 +78,23 @@ func _on_died() -> void:
 	if dead:
 		return
 	dead = true
+	death_fade = DEATH_FADE
 	arena.notify_enemy_died(self)
-	queue_free()
+	queue_redraw()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 16.0, Color("#ff6b6b"))
-	draw_circle(Vector2.ZERO, 16.0, Color("#30151b"), false, 2.0)
-	draw_line(Vector2.ZERO, Vector2(0, -24), Color("#ffb0a8"), 3.0)
-	draw_rect(Rect2(-18, -31, 36, 4), Color("#30151b"))
-	draw_rect(Rect2(-18, -31, 36.0 * float(health.current) / float(maxi(1, health.maximum)), 4), Color("#ffcf87"))
+	var alpha: float = 1.0
+	if death_fade > 0.0:
+		alpha = clampf(death_fade / DEATH_FADE, 0.0, 1.0)
+	draw_circle(Vector2.ZERO, 16.0, Color("#ff6b6b", alpha))
+	draw_circle(Vector2.ZERO, 16.0, Color("#30151b", alpha), false, 2.0)
+	draw_line(Vector2.ZERO, Vector2(0, -24), Color("#ffb0a8", alpha), 3.0)
+	draw_rect(Rect2(-18, -31, 36, 4), Color("#30151b", alpha))
+	draw_rect(Rect2(-18, -31, 36.0 * float(health.current) / float(maxi(1, health.maximum)), 4), Color("#ffcf87", alpha))
+	if death_fade > 0.0:
+		var p: float = 1.0 - death_fade / DEATH_FADE
+		draw_circle(Vector2.ZERO, 16.0 + p * 16.0, Color(1.0, 0.95, 0.8, (1.0 - p) * 0.7), false, 4.0)
+		return
 	if state == State.TELEGRAPH:
 		var pulse: float = 1.0 + sin(state_elapsed * 18.0) * 0.12
 		draw_circle(Vector2.ZERO, 28.0 * pulse, Color("#ffb347", 0.22), false, 4.0)

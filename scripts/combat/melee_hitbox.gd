@@ -17,7 +17,7 @@ func _ready() -> void:
 func activate(attack_damage: int, attack_knockback: Vector2) -> void:
 	damage = attack_damage
 	knockback = attack_knockback
-	window_left = 0.1
+	window_left = 0.14
 	monitoring = true
 
 func _process(delta: float) -> void:

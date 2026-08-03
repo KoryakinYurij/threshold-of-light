@@ -6,7 +6,7 @@ const DASH_DURATION: float = 0.18
 const INPUT_BUFFER: float = 0.18
 const ATTACK_DAMAGE: int = 10
 const ATTACK_COOLDOWN: float = 0.25
-const MELEE_OFFSET: float = 34.0
+const MELEE_OFFSET: float = 38.0
 const MELEE_RANGE: float = 38.0
 
 var arena: Node
@@ -27,8 +27,17 @@ func _ready() -> void:
 	arena = get_parent()
 	health.health_changed.connect(_on_health_changed)
 	health.died.connect(_on_died)
-	health.set_maximum(maxi(1, roundi(arena.get_parameter("scout_hp", 100.0))))
+	# scout_hp читается после arena._ready (дети ready-ятся раньше родителя),
+	# поэтому применяется отложенно и повторно при изменении ползунка.
+	arena.tuning_changed.connect(_on_tuning_changed)
+	call_deferred("_apply_max_hp")
 	queue_redraw()
+
+func _apply_max_hp() -> void:
+	health.set_maximum(maxi(1, roundi(arena.get_parameter("scout_hp", 100.0))))
+
+func _on_tuning_changed(_values: Dictionary) -> void:
+	_apply_max_hp()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if dead:
@@ -110,4 +119,4 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 14.0, Color("#16202b"), false, 2.0)
 	draw_line(Vector2.ZERO, last_direction * 22.0, Color("#71d8ff"), 3.0)
 	if attack_flash > 0.0:
-		draw_arc(last_direction * 34.0, 34.0, -1.0, 1.0, 16, Color("#fff4bf"), 5.0)
+		draw_arc(last_direction * 38.0, 38.0, -1.0, 1.0, 16, Color("#fff4bf"), 5.0)
