@@ -27,10 +27,11 @@ You can also double-click `project.godot`. On the first open, Godot imports asse
 
 ## Canonical Development Environment
 
-After T-02, **all project work is Windows-only**: coding, Godot launches, manual
-playtesting, visual debugging, tests, and exports. The VPS is not a continuation
-workspace for this project. The previous VPS/headless runs are historical T-02
-verification only.
+After T-02, **all Godot execution is Windows-only**: Godot launches, manual
+playtesting, visual debugging, tests, and exports. The previous VPS/headless runs
+are historical T-02 verification only. The VPS is still used as a **file mirror**
+for the remote coding agent: `~/projects/godot/work/` synced via `godot-sync`
+(rclone), see `~/projects/godot/AGENTS.md`. No Godot runs on the VPS.
 
 Project root:
 
@@ -40,7 +41,11 @@ D:\Code AI\Games\Godot v1
 
 ## Agent Workflow
 
-Run the coding agent on **Windows** from this project root. That lets its project-level MCP server start Windows Godot directly. Do not start the project agent on the remote VPS for future implementation work.
+The coding agent may run on the **VPS** working in the synced mirror
+`~/projects/godot/work/` (see `~/projects/godot/AGENTS.md`) — but all Godot
+commands (editor, tests, builds, exports) must run **on Windows**, from this
+project root, so the project-level MCP server can start Windows Godot directly.
+Never run Godot from the VPS: it has none and is too weak.
 
 Before implementation, ask the agent to read the project instructions, the current Phase 1 scope, context, and accepted ADRs. Keep each task limited to its ticket, add tests with a pinned test addon when the first testable core system is introduced, and verify changes with Windows Godot commands plus the manual/visual check appropriate to the ticket.
 
