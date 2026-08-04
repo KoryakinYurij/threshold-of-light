@@ -1,9 +1,11 @@
 class_name Pursuer extends CharacterBody2D
 ## Преследователь: плоский FSM IDLE->SEEK->TELEGRAPH->ATTACK->RECOVER (спека T-03).
+## T-03b Блок 1: белая вспышка при попадании по врагу (hit_flash, 0.1с).
 
 enum State { IDLE, SEEK, TELEGRAPH, ATTACK, RECOVER }
 
 const DEATH_FADE: float = 0.28
+const HIT_FLASH_SECONDS: float = 0.1
 
 var arena: Node
 var target: Node
@@ -15,6 +17,8 @@ var dead: bool = false
 var death_fade: float = 0.0
 var telegraph_direction: Vector2 = Vector2.UP
 var attack_flash: float = 0.0
+var hit_flash: float = 0.0
+var _last_hp: int = -1
 
 @export var target_path: NodePath
 @onready var health: HealthComponent = $HealthComponent
@@ -22,7 +26,9 @@ var attack_flash: float = 0.0
 func _ready() -> void:
 	arena = get_parent()
 	target = get_node_or_null(target_path)
+	health.health_changed.connect(_on_health_changed)
 	health.died.connect(_on_died)
+	_last_hp = health.current
 	queue_redraw()
 
 func _physics_process(delta: float) -> void:
@@ -38,6 +44,7 @@ func _physics_process(delta: float) -> void:
 	state_elapsed += delta
 	attack_cooldown_left = maxf(0.0, attack_cooldown_left - delta)
 	attack_flash = maxf(0.0, attack_flash - delta)
+	hit_flash = maxf(0.0, hit_flash - delta)
 	var distance: float = global_position.distance_to(target.global_position)
 	match state:
 		State.IDLE:
@@ -74,6 +81,12 @@ func _change_state(next: State) -> void:
 	attack_done = false
 	queue_redraw()
 
+## Белая вспышка только на реальном списании HP (T-03b Блок 1).
+func _on_health_changed(current: int, _maximum: int) -> void:
+	if _last_hp >= 0 and current < _last_hp:
+		hit_flash = HIT_FLASH_SECONDS
+	_last_hp = current
+
 func _on_died() -> void:
 	if dead:
 		return
@@ -91,6 +104,8 @@ func _draw() -> void:
 	draw_line(Vector2.ZERO, Vector2(0, -24), Color("#ffb0a8", alpha), 3.0)
 	draw_rect(Rect2(-18, -31, 36, 4), Color("#30151b", alpha))
 	draw_rect(Rect2(-18, -31, 36.0 * float(health.current) / float(maxi(1, health.maximum)), 4), Color("#ffcf87", alpha))
+	if hit_flash > 0.0:
+		draw_circle(Vector2.ZERO, 18.0, Color(1.0, 1.0, 1.0, hit_flash / HIT_FLASH_SECONDS * 0.85))
 	if death_fade > 0.0:
 		var p: float = 1.0 - death_fade / DEATH_FADE
 		draw_circle(Vector2.ZERO, 16.0 + p * 16.0, Color(1.0, 0.95, 0.8, (1.0 - p) * 0.7), false, 4.0)

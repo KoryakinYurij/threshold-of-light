@@ -11,9 +11,12 @@ func _ready() -> void:
 func _on_area_entered(hitbox: Area2D) -> void:
 	take_attack(hitbox)
 
-func take_attack(hitbox: Area2D) -> void:
+## True — урон списан (не съеден i-frames). По нему MeleeHitbox даёт отдачу
+## попадания (T-03b Блок 1).
+func take_attack(hitbox: Area2D) -> bool:
 	if not hitbox.has_method(&"build_attack"):
-		return
+		return false
 	var health: Node = get_parent().get_node_or_null(NodePath("HealthComponent"))
 	if health != null and health.has_method(&"take_damage"):
-		health.take_damage(hitbox.build_attack())
+		return health.take_damage(hitbox.build_attack())
+	return false

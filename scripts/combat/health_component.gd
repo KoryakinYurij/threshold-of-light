@@ -32,15 +32,26 @@ func set_maximum(new_maximum: int) -> void:
 	current = mini(current, maximum)
 	health_changed.emit(current, maximum)
 
-func take_damage(data: DamageData) -> void:
+## Применил ли урон. False — i-frames или уже мёртв: фидбэк «попадания»
+## вешается на true, иначе удар ощущается даже на поглощённом i-frames
+## (T-03b Блок 1).
+func take_damage(data: DamageData) -> bool:
 	if invincible or current <= 0:
-		return
+		return false
 	current = maxi(0, current - data.amount)
 	invincible = true
 	invincibility_left = I_FRAME_WINDOW
 	health_changed.emit(current, maximum)
 	if current <= 0:
 		died.emit()
+	return true
+
+## Лечение (T-03b Блок 2: дроп +10 HP). Не воскрешает.
+func heal(amount: int) -> void:
+	if current <= 0:
+		return
+	current = mini(maximum, current + amount)
+	health_changed.emit(current, maximum)
 
 func begin_invincibility(duration: float) -> void:
 	invincible = true

@@ -1,5 +1,6 @@
 class_name TuningPanel extends Control
 ## F1-панель: ползунки тюнинга, применяются сразу и сохраняются в SettingsStore.
+## T-03b Блок 1: добавлены hit_stop (хит-стоп попадания игрока) и slow_mo.
 
 var arena: Node
 var sliders: Dictionary = {}
@@ -11,6 +12,8 @@ var definitions: Array[Dictionary] = [
 	{"key": "enemy_damage", "label": "Урон врага", "min": 5.0, "max": 50.0, "step": 1.0, "suffix": ""},
 	{"key": "scout_hp", "label": "HP скаута", "min": 25.0, "max": 200.0, "step": 5.0, "suffix": ""},
 	{"key": "speed", "label": "Скорость скаута", "min": 100.0, "max": 400.0, "step": 5.0, "suffix": " px/s"},
+	{"key": "hit_stop", "label": "Хит-стоп попадания", "min": 0.0, "max": 0.15, "step": 0.005, "suffix": " s"},
+	{"key": "slow_mo", "label": "Slow-mo на смерть", "min": 0.1, "max": 0.5, "step": 0.01, "suffix": ""},
 ]
 
 func _ready() -> void:

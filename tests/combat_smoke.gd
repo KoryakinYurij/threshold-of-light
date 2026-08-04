@@ -1,7 +1,8 @@
 extends Node
 ## T-03 combat smoke test (scene-based, ASCII only).
 ## Verifies: melee damage pipeline, enemy absolute HP (30), enemy attack on
-## scout (25), 3-hit kill, F1 panel sliders, defaults.
+## scout (25), 3-hit kill, hit feedback (number + particles), F1 panel sliders,
+## defaults (включая hit_stop/slow_mo из T-03b Блок 1).
 ## Run: godot --headless --path . res://tests/combat_smoke.tscn
 
 func _ready() -> void:
@@ -27,7 +28,7 @@ func _ready() -> void:
 		failed += 1
 		print("FAIL enemy hp: ", enemy_health.current, "/", enemy_health.maximum)
 
-	# Melee damage pipeline: 10 damage -> 30 -> 20
+	# Melee damage pipeline: 10 damage -> 30 -> 20 + отдача попадания (T-03b)
 	enemy.position = scout.position + Vector2(50, 0)
 	scout.last_direction = Vector2.RIGHT
 	var before: int = enemy_health.current
@@ -41,6 +42,27 @@ func _ready() -> void:
 	else:
 		failed += 1
 		print("FAIL melee damage: ", before, " -> ", after)
+
+	# Отдача попадания: число урона и частицы появились у арены (Блок 1)
+	var number_seen := false
+	var particles_seen := false
+	for child: Node in arena.get_children():
+		if child is DamageNumber:
+			number_seen = true
+		if child is HitParticles:
+			particles_seen = true
+	if number_seen:
+		checks += 1
+		print("OK damage number spawned on player hit")
+	else:
+		failed += 1
+		print("FAIL damage number missing on player hit")
+	if particles_seen:
+		checks += 1
+		print("OK hit particles spawned on player hit")
+	else:
+		failed += 1
+		print("FAIL hit particles missing on player hit")
 
 	# Enemy attack on scout: 25 damage -> 100 -> 75
 	var scout_before: int = scout_health.current
@@ -75,7 +97,7 @@ func _ready() -> void:
 		failed += 1
 		print("FAIL enemy survives 3 melee hits: cur=", enemy_health.current)
 
-	if panel.sliders.size() == 6:
+	if panel.sliders.size() == 8:
 		checks += 1
 		print("OK tuning panel sliders: ", panel.sliders.size())
 	else:
@@ -88,6 +110,28 @@ func _ready() -> void:
 	else:
 		failed += 1
 		print("FAIL iframes default: ", arena.get_parameter("iframes"))
+
+	if is_equal_approx(arena.get_parameter("hit_stop"), 0.06):
+		checks += 1
+		print("OK default hit_stop: ", arena.get_parameter("hit_stop"))
+	else:
+		failed += 1
+		print("FAIL hit_stop default: ", arena.get_parameter("hit_stop"))
+
+	if is_equal_approx(arena.get_parameter("slow_mo"), 0.2):
+		checks += 1
+		print("OK default slow_mo: ", arena.get_parameter("slow_mo"))
+	else:
+		failed += 1
+		print("FAIL slow_mo default: ", arena.get_parameter("slow_mo"))
+
+	# Хит-стоп и slow-mo не «утекли» в другие сцены
+	if is_equal_approx(Engine.time_scale, 1.0):
+		checks += 1
+		print("OK time_scale вернулся в 1.0")
+	else:
+		failed += 1
+		print("FAIL time_scale не вернулся в 1.0: ", Engine.time_scale)
 
 	print("SMOKE checks=", checks, " failed=", failed)
 	get_tree().quit(0 if failed == 0 else 1)
