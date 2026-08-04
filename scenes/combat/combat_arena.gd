@@ -41,19 +41,30 @@ var time_mode: int = TimeMode.NONE
 var time_left: float = 0.0
 var defeated_enemies: int = 0
 var scout_dead: bool = false
+## Материалы за сессию боя (T-03b Блок 2): без сейва/персистентности (ADR-003,
+## сейв — T-04; тогда переедет в run_state.pending_materials).
+var materials: int = 0
+## Сидированный RNG боя (ADR-004): ВСЯ геймплейная случайность арены (дроп,
+## составы волн, элита) идёт через этот генератор, randi()/randf() запрещены.
+var _combat_rng: RandomNumberGenerator
 
 @onready var scout: Node = $Scout
 @onready var camera: Camera2D = $Camera2D
 @onready var status_label: Label = $HUD/Status
 @onready var death_label: Label = $HUD/DeathLabel
+@onready var materials_label: Label = $HUD/Materials
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for key: String in DEFAULTS:
 		var limits: Vector2 = RANGES.get(key, Vector2(-INF, INF))
 		parameters[key] = clampf(float(SettingsStore.get_value("combat", key, DEFAULTS[key])), limits.x, limits.y)
+	## Семя боя: из активного забега, если он есть (T-04), иначе свой сид.
+	var master: int = GameState.current_run.master_seed if GameState.has_run() else SeedService.new_master_seed()
+	_combat_rng = SeedService.rng_for(SeedService.combat_seed(master))
 	death_label.visible = false
 	status_label.text = "Бой: 2 преследователя | F1 — настройка"
+	materials_label.text = "Материалы: 0"
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -109,10 +120,10 @@ func on_player_hit(at: Vector2, amount: int) -> void:
 	_spawn_damage_number(at, str(amount))
 	_spawn_hit_particles(at)
 
-func _spawn_damage_number(at: Vector2, text_value: String) -> void:
+func _spawn_damage_number(at: Vector2, text_value: String, text_color: Color = Color(1.0, 0.92, 0.55)) -> void:
 	var number := DamageNumber.new()
 	add_child(number)
-	number.setup(text_value, at)
+	number.setup(text_value, at, text_color)
 
 func _spawn_hit_particles(at: Vector2) -> void:
 	var particles := HitParticles.new()
@@ -125,8 +136,38 @@ func notify_scout_hp(current: int, maximum: int) -> void:
 func notify_enemy_died(enemy: Node) -> void:
 	defeated_enemies += 1
 	slow_mo(0.25, get_parameter("slow_mo", 0.2))
+	_spawn_drops(enemy.global_position)
 	if defeated_enemies >= 2:
 		status_label.text = "Арена зачищена — можно продолжать тестировать ползунки"
+
+## Дроп при убийстве (T-03b Блок 2): 1–3 осколка + 15% шанс лечения +10 HP.
+## Весь RNG — сидированный (_combat_rng), контракт ADR-004.
+func _spawn_drops(at: Vector2) -> void:
+	var count: int = _combat_rng.randi_range(1, 3)
+	for i: int in count:
+		_spawn_shard(at, MaterialShard.Kind.MATERIAL)
+	if _combat_rng.randf() < 0.15:
+		_spawn_shard(at, MaterialShard.Kind.HEAL)
+
+func _spawn_shard(at: Vector2, shard_kind: int) -> void:
+	var shard := MaterialShard.new()
+	add_child(shard)
+	# Разброс спавна и начальный импульс — геймплейный RNG: сидированный.
+	var scatter: Vector2 = Vector2(_combat_rng.randf_range(-120.0, 120.0), _combat_rng.randf_range(-80.0, 80.0))
+	shard.setup(self, shard_kind, at, scatter)
+
+## Подхват осколка: счётчик + эффект, виден сразу.
+func collect_material(_shard: Node) -> void:
+	materials += 1
+	materials_label.text = "Материалы: %d" % materials
+	_spawn_hit_particles(_shard.global_position)
+
+## Подхват лечения: +10 HP, эффект.
+func collect_heal(shard: Node) -> void:
+	if scout.has_node("HealthComponent"):
+		scout.get_node("HealthComponent").heal(10)
+	_spawn_damage_number(shard.global_position, "+10", Color(0.49, 1.0, 0.69))
+	_spawn_hit_particles(shard.global_position)
 
 func notify_scout_died() -> void:
 	if scout_dead:

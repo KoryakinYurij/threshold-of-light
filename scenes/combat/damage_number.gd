@@ -8,12 +8,13 @@ const LIFETIME: float = 0.6
 
 var _elapsed: float = 0.0
 
-func setup(text_value: String, at: Vector2) -> void:
+## Цвет по умолчанию — жёлтый (урон); лечение (Блок 2) передаёт зелёный.
+func setup(text_value: String, at: Vector2, text_color: Color = Color(1.0, 0.92, 0.55)) -> void:
 	global_position = at
 	var label := Label.new()
 	label.text = text_value
 	label.add_theme_font_size_override("font_size", 18)
-	label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.55))
+	label.add_theme_color_override("font_color", text_color)
 	label.add_theme_color_override("font_outline_color", Color(0.1, 0.07, 0.03))
 	label.add_theme_constant_override("outline_size", 6)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

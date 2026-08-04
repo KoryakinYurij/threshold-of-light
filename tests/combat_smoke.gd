@@ -2,7 +2,8 @@ extends Node
 ## T-03 combat smoke test (scene-based, ASCII only).
 ## Verifies: melee damage pipeline, enemy absolute HP (30), enemy attack on
 ## scout (25), 3-hit kill, hit feedback (number + particles), F1 panel sliders,
-## defaults (включая hit_stop/slow_mo из T-03b Блок 1).
+## defaults (включая hit_stop/slow_mo из T-03b Блок 1), drop (materials + heal)
+## и сидированный RNG (T-03b Блок 2).
 ## Run: godot --headless --path . res://tests/combat_smoke.tscn
 
 func _ready() -> void:
@@ -96,6 +97,60 @@ func _ready() -> void:
 	else:
 		failed += 1
 		print("FAIL enemy survives 3 melee hits: cur=", enemy_health.current)
+
+	# Дроп при убийстве (Блок 2): осколки летят к игроку и собираются.
+	# Ждём реальные секунды (осколки живут в реальном времени, slow-mo не мешает).
+	await _wait_ms(800)
+	var drop_ok: bool = false
+	var shards_seen: int = 0
+	for child: Node in arena.get_children():
+		if child is MaterialShard:
+			shards_seen += 1
+	# 1..3 осколка спавнятся у трупа; часть могла уже подобраться.
+	drop_ok = arena.materials >= 1 or shards_seen > 0
+	if drop_ok:
+		checks += 1
+		print("OK drop on kill: materials=", arena.materials, " shards=", shards_seen)
+	else:
+		failed += 1
+		print("FAIL no drop on kill: materials=", arena.materials, " shards=", shards_seen)
+
+	# HUD-счётчик виден сразу после подхвата (Блок 2)
+	var hud_label: Label = arena.get_node("HUD/Materials")
+	if hud_label != null and hud_label.text.begins_with("Материалы:"):
+		checks += 1
+		print("OK HUD materials label: ", hud_label.text)
+	else:
+		failed += 1
+		print("FAIL HUD materials label missing")
+
+	# Лечение +10 HP при подхвате лечебного осколка (Блок 2)
+	var hp_before_heal: int = scout_health.current
+	arena.collect_heal(arena.get_node("Scout"))
+	if scout_health.current == mini(scout_health.maximum, hp_before_heal + 10):
+		checks += 1
+		print("OK heal drop +10 HP: ", hp_before_heal, " -> ", scout_health.current)
+	else:
+		failed += 1
+		print("FAIL heal drop: ", hp_before_heal, " -> ", scout_health.current)
+
+	# Сидированный RNG (ADR-004): один и тот же сид даёт тот же дроп.
+	var rng_a: RandomNumberGenerator = SeedService.rng_for(SeedService.combat_seed(42))
+	var rng_b: RandomNumberGenerator = SeedService.rng_for(SeedService.combat_seed(42))
+	if rng_a.randf() == rng_b.randf() and rng_a.randi_range(1, 3) == rng_b.randi_range(1, 3):
+		checks += 1
+		print("OK seeded RNG deterministic for same seed")
+	else:
+		failed += 1
+		print("FAIL seeded RNG not deterministic")
+	# Разные сиды дают разные потоки (статистически)
+	var rng_c: RandomNumberGenerator = SeedService.rng_for(SeedService.combat_seed(43))
+	if rng_a.randf() != rng_c.randf():
+		checks += 1
+		print("OK seeded RNG differs across seeds")
+	else:
+		failed += 1
+		print("FAIL seeded RNG same across seeds")
 
 	if panel.sliders.size() == 8:
 		checks += 1
