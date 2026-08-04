@@ -59,7 +59,7 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.ZERO
 			if not attack_done:
 				attack_done = true
-				arena.spawn_projectile(global_position, aim_direction, roundi(eff_damage(arena.get_parameter("shooter_damage", BASE_DAMAGE))))
+				arena.spawn_projectile(global_position, aim_direction, roundi(eff_damage(arena.get_parameter("shooter_damage", BASE_DAMAGE))), get_instance_id())
 				_change_state(State.RECOVER)
 		State.RECOVER:
 			velocity = Vector2.ZERO

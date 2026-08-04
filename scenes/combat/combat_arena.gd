@@ -161,9 +161,9 @@ func notify_enemy_died(enemy: Node) -> void:
 		if current_wave + 1 >= WAVE_COMPOSITIONS.size():
 			status_label.text = "Все волны зачищены — бой пройден | F1 — настройка"
 		else:
-			# Переход на следующую волну с короткой паузой (сбор дропа).
-			status_label.text = "Волна зачищена — следующая через мгновение…"
-			_apply_time(TimeMode.NONE, 0.0, 1.0)
+			# Переход на следующую волну. Slow-mo от последней смерти НЕ сбрасываем
+			# принудительно (ревью): пусть доиграет — новая волна уже спавнится,
+			# а время вернётся в 1.0 само по истечении таймера.
 			_start_wave(current_wave + 1)
 
 ## Волны: 1) Преследователь + 2 Роя · 2) Преследователь + Стрелок · 3) 2 Стрелка.
@@ -218,15 +218,18 @@ func _spawn_position() -> Vector2:
 func combat_wobble() -> Vector2:
 	return Vector2(_combat_rng.randf_range(-0.12, 0.12), _combat_rng.randf_range(-0.12, 0.12))
 
-## Снаряд стрелка: спавнится в дереве арены, летит на скаута.
-func spawn_projectile(origin: Vector2, dir: Vector2, amount: int) -> void:
+## Снаряд стрелка: спавнится в дереве арены, летит на скаута. source_id —
+## стрелок (атрибуция урона, ревью T-03b).
+func spawn_projectile(origin: Vector2, dir: Vector2, amount: int, source_id: int = 0) -> void:
 	var projectile := Projectile.new()
 	add_child(projectile)
-	projectile.setup(origin, dir, amount, 0, get_parameter("projectile_speed", 340.0))
+	projectile.setup(origin, dir, amount, source_id, get_parameter("projectile_speed", 340.0))
 
-## Отдача от попадания снаряда (Блок 3): лёгкий хит-стоп + число урона.
+## Отдача от попадания снаряда (Блок 3): число урона + частицы + тряска,
+## как у мели-попадания (консистентность ощущения, ревью T-03b).
 func on_projectile_hit(at: Vector2, amount: int) -> void:
 	_spawn_damage_number(at, str(amount))
+	_spawn_hit_particles(at)
 	emit_feedback(at, 0.3, 0.03)
 
 ## Дроп при убийстве (T-03b Блок 2): 1–3 осколка + 15% шанс лечения +10 HP.
