@@ -1,18 +1,14 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/combat/combat_arena.gd" id="1"]
 [ext_resource type="Script" path="res://scenes/combat/scout.gd" id="2"]
-[ext_resource type="Script" path="res://scenes/combat/pursuer.gd" id="3"]
-[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="4"]
-[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="5"]
-[ext_resource type="Script" path="res://scripts/combat/melee_hitbox.gd" id="6"]
-[ext_resource type="Script" path="res://scenes/ui/tuning_panel.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/combat/health_component.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/combat/melee_hitbox.gd" id="5"]
+[ext_resource type="Script" path="res://scenes/ui/tuning_panel.gd" id="6"]
 
 [sub_resource type="CircleShape2D" id="ScoutShape"]
 radius = 14.0
-
-[sub_resource type="CircleShape2D" id="EnemyShape"]
-radius = 16.0
 
 [sub_resource type="CircleShape2D" id="MeleeShape"]
 radius = 36.0
@@ -30,12 +26,12 @@ position = Vector2(640, 420)
 script = ExtResource("2")
 
 [node name="HealthComponent" type="Node" parent="Scout"]
-script = ExtResource("4")
+script = ExtResource("3")
 
 [node name="Hurtbox" type="Area2D" parent="Scout"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("5")
+script = ExtResource("4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Scout/Hurtbox"]
 shape = SubResource("ScoutShape")
@@ -44,46 +40,10 @@ shape = SubResource("ScoutShape")
 position = Vector2(38, 0)
 collision_layer = 4
 collision_mask = 8
-script = ExtResource("6")
+script = ExtResource("5")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Scout/MeleeHitbox"]
 shape = SubResource("MeleeShape")
-
-[node name="PursuerA" type="CharacterBody2D" parent="."]
-position = Vector2(400, 250)
-script = ExtResource("3")
-target_path = NodePath("../Scout")
-
-[node name="HealthComponent" type="Node" parent="PursuerA"]
-script = ExtResource("4")
-maximum = 30
-current = 30
-
-[node name="Hurtbox" type="Area2D" parent="PursuerA"]
-collision_layer = 8
-collision_mask = 0
-script = ExtResource("5")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PursuerA/Hurtbox"]
-shape = SubResource("EnemyShape")
-
-[node name="PursuerB" type="CharacterBody2D" parent="."]
-position = Vector2(900, 520)
-script = ExtResource("3")
-target_path = NodePath("../Scout")
-
-[node name="HealthComponent" type="Node" parent="PursuerB"]
-script = ExtResource("4")
-maximum = 30
-current = 30
-
-[node name="Hurtbox" type="Area2D" parent="PursuerB"]
-collision_layer = 8
-collision_mask = 0
-script = ExtResource("5")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PursuerB/Hurtbox"]
-shape = SubResource("EnemyShape")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -139,4 +99,4 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
-script = ExtResource("7")
+script = ExtResource("6")

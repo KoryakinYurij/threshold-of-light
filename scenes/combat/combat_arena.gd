@@ -19,6 +19,13 @@ const DEFAULTS: Dictionary = {
 	"enemy_speed": 140.0,
 	"hit_stop": 0.06,
 	"slow_mo": 0.2,
+	"swarm_hp": 10.0,
+	"swarm_damage": 10.0,
+	"swarm_speed": 260.0,
+	"shooter_hp": 20.0,
+	"shooter_damage": 10.0,
+	"shooter_range": 180.0,
+	"projectile_speed": 340.0,
 }
 const RANGES: Dictionary = {
 	"iframes": Vector2(0.05, 0.5),
@@ -29,6 +36,13 @@ const RANGES: Dictionary = {
 	"speed": Vector2(100.0, 400.0),
 	"hit_stop": Vector2(0.0, 0.15),
 	"slow_mo": Vector2(0.1, 0.5),
+	"swarm_hp": Vector2(4.0, 30.0),
+	"swarm_damage": Vector2(3.0, 25.0),
+	"swarm_speed": Vector2(160.0, 420.0),
+	"shooter_hp": Vector2(8.0, 60.0),
+	"shooter_damage": Vector2(3.0, 25.0),
+	"shooter_range": Vector2(100.0, 320.0),
+	"projectile_speed": Vector2(180.0, 560.0),
 }
 
 ## Единый менеджер времени (T-03b Блок 1): хит-стоп (0.05) и slow-mo (0.2)
@@ -47,6 +61,10 @@ var materials: int = 0
 ## Сидированный RNG боя (ADR-004): ВСЯ геймплейная случайность арены (дроп,
 ## составы волн, элита) идёт через этот генератор, randi()/randf() запрещены.
 var _combat_rng: RandomNumberGenerator
+## Волны (T-03b Блок 3): индекс текущей волны (0-based), живые враги волны.
+var current_wave: int = 0
+var wave_enemies_alive: int = 0
+var _wave_in_progress: bool = false
 
 @onready var scout: Node = $Scout
 @onready var camera: Camera2D = $Camera2D
@@ -63,8 +81,8 @@ func _ready() -> void:
 	var master: int = GameState.current_run.master_seed if GameState.has_run() else SeedService.new_master_seed()
 	_combat_rng = SeedService.rng_for(SeedService.combat_seed(master))
 	death_label.visible = false
-	status_label.text = "Бой: 2 преследователя | F1 — настройка"
 	materials_label.text = "Материалы: 0"
+	_start_wave(0)
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -136,14 +154,86 @@ func notify_scout_hp(current: int, maximum: int) -> void:
 func notify_enemy_died(enemy: Node) -> void:
 	defeated_enemies += 1
 	slow_mo(0.25, get_parameter("slow_mo", 0.2))
-	_spawn_drops(enemy.global_position)
-	if defeated_enemies >= 2:
-		status_label.text = "Арена зачищена — можно продолжать тестировать ползунки"
+	_spawn_drops(enemy.global_position, enemy.get("is_elite") == true)
+	wave_enemies_alive -= 1
+	if _wave_in_progress and wave_enemies_alive <= 0:
+		_wave_in_progress = false
+		if current_wave + 1 >= WAVE_COMPOSITIONS.size():
+			status_label.text = "Все волны зачищены — бой пройден | F1 — настройка"
+		else:
+			# Переход на следующую волну с короткой паузой (сбор дропа).
+			status_label.text = "Волна зачищена — следующая через мгновение…"
+			_apply_time(TimeMode.NONE, 0.0, 1.0)
+			_start_wave(current_wave + 1)
+
+## Волны: 1) Преследователь + 2 Роя · 2) Преследователь + Стрелок · 3) 2 Стрелка.
+## Один враг в волне — элитный (HP×2.5/скорость×1.5/урон×1.6, дроп ×2).
+const WAVE_COMPOSITIONS: Array[Array] = [
+	[&"Pursuer", &"Swarm", &"Swarm"],
+	[&"Pursuer", &"Shooter"],
+	[&"Shooter", &"Shooter"],
+]
+
+## Спавн состава волны через сидированный RNG (элита, позиции, стаи).
+func _start_wave(index: int) -> void:
+	current_wave = index
+	wave_enemies_alive = 0
+	_wave_in_progress = true
+	var composition: Array = WAVE_COMPOSITIONS[index]
+	var elite_index: int = _combat_rng.randi_range(0, composition.size() - 1)
+	for i: int in composition.size():
+		var type_name: StringName = composition[i]
+		_spawn_enemy(type_name, i == elite_index)
+	status_label.text = "Волна %d/%d | F1 — настройка" % [current_wave + 1, WAVE_COMPOSITIONS.size()]
+
+## Создаёт врага нужного класса. Позиция — в стороне от скаута, сидированный
+## RNG (контракт ADR-004). Слой Enemy выставляется, чтобы мели-хёртбокс и
+## снаряды находили цели.
+func _spawn_enemy(type_name: StringName, is_elite: bool) -> Node:
+	var enemy: EnemyBase
+	match type_name:
+		&"Pursuer":
+			enemy = Pursuer.new()
+		&"Swarm":
+			enemy = Swarm.new()
+		&"Shooter":
+			enemy = Shooter.new()
+		_:
+			return null
+	add_child(enemy)
+	enemy.global_position = _spawn_position()
+	enemy.setup_enemy(self, scout, is_elite)
+	wave_enemies_alive += 1
+	return enemy
+
+## Позиция спавна: на краю арены, не ближе 240px к скауту (сидированный RNG).
+func _spawn_position() -> Vector2:
+	for attempt: int in 12:
+		var pos: Vector2 = Vector2(_combat_rng.randf_range(80.0, 1200.0), _combat_rng.randf_range(140.0, 640.0))
+		if scout != null and pos.distance_to(scout.global_position) > 240.0:
+			return pos
+	return Vector2(_combat_rng.randf_range(80.0, 1200.0), _combat_rng.randf_range(140.0, 640.0))
+
+## Жужжание роя: маленькое сидированное отклонение направления (Блок 3).
+func combat_wobble() -> Vector2:
+	return Vector2(_combat_rng.randf_range(-0.12, 0.12), _combat_rng.randf_range(-0.12, 0.12))
+
+## Снаряд стрелка: спавнится в дереве арены, летит на скаута.
+func spawn_projectile(origin: Vector2, dir: Vector2, amount: int) -> void:
+	var projectile := Projectile.new()
+	add_child(projectile)
+	projectile.setup(origin, dir, amount, 0, get_parameter("projectile_speed", 340.0))
+
+## Отдача от попадания снаряда (Блок 3): лёгкий хит-стоп + число урона.
+func on_projectile_hit(at: Vector2, amount: int) -> void:
+	_spawn_damage_number(at, str(amount))
+	emit_feedback(at, 0.3, 0.03)
 
 ## Дроп при убийстве (T-03b Блок 2): 1–3 осколка + 15% шанс лечения +10 HP.
 ## Весь RNG — сидированный (_combat_rng), контракт ADR-004.
-func _spawn_drops(at: Vector2) -> void:
-	var count: int = _combat_rng.randi_range(1, 3)
+func _spawn_drops(at: Vector2, is_elite: bool = false) -> void:
+	# Элитный враг даёт дроп ×2.
+	var count: int = _combat_rng.randi_range(1, 3) * (2 if is_elite else 1)
 	for i: int in count:
 		_spawn_shard(at, MaterialShard.Kind.MATERIAL)
 	if _combat_rng.randf() < 0.15:

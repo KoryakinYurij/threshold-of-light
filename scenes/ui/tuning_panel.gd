@@ -14,6 +14,13 @@ var definitions: Array[Dictionary] = [
 	{"key": "speed", "label": "Скорость скаута", "min": 100.0, "max": 400.0, "step": 5.0, "suffix": " px/s"},
 	{"key": "hit_stop", "label": "Хит-стоп попадания", "min": 0.0, "max": 0.15, "step": 0.005, "suffix": " s"},
 	{"key": "slow_mo", "label": "Slow-mo на смерть", "min": 0.1, "max": 0.5, "step": 0.01, "suffix": ""},
+	{"key": "swarm_hp", "label": "HP роя", "min": 4.0, "max": 30.0, "step": 1.0, "suffix": ""},
+	{"key": "swarm_damage", "label": "Урон роя", "min": 3.0, "max": 25.0, "step": 1.0, "suffix": ""},
+	{"key": "swarm_speed", "label": "Скорость роя", "min": 160.0, "max": 420.0, "step": 5.0, "suffix": " px/s"},
+	{"key": "shooter_hp", "label": "HP стрелка", "min": 8.0, "max": 60.0, "step": 1.0, "suffix": ""},
+	{"key": "shooter_damage", "label": "Урон стрелка", "min": 3.0, "max": 25.0, "step": 1.0, "suffix": ""},
+	{"key": "shooter_range", "label": "Дистанция стрелка", "min": 100.0, "max": 320.0, "step": 5.0, "suffix": " px"},
+	{"key": "projectile_speed", "label": "Скорость снаряда", "min": 180.0, "max": 560.0, "step": 10.0, "suffix": " px/s"},
 ]
 
 func _ready() -> void:
